@@ -35,7 +35,8 @@ export default function Login() {
               priority
             />
           </div>
-          <div className="px-6 flex justify-center flex-col items-center lg:min-h-screen w-auto ">
+          {/* <div className="px-6 flex justify-center flex-col items-center lg:min-h-screen w-auto "> */}
+          <div className="px-6 flex justify-center flex-col items-center lg:min-h-screen mt-6 lg:py-0 py-16 w-auto ">
             <h2 className="lg:text-[40px] text-[32px] font-bold text-center text-gray-900">
               Sign in
             </h2>
