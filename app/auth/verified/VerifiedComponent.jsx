@@ -72,7 +72,7 @@ export default function VerifiedComponent() {
                   type="number"
                   onChange={(e) => setPin(e.target.value)}
                   placeholder="Enter pin here"
-                  className="border-[1.5px] !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-blue-600 focus:!border-t-blue-600 focus:ring-blue-600/10"
+                  className="border-[1.5px] !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-blue-600 mt-2 focus:!border-t-blue-600 focus:ring-blue-600/10"
                   labelProps={{
                     className: "hidden",
                   }}
