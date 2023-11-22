@@ -4,7 +4,7 @@ import React from "react";
 
 const RightOnboard = () => {
   return (
-    <section className="min-h-screen col-span-6 bg-gray-100 w-1/2 md:w-1/2 fixed right-0 hidden  lg:flex md:flex">
+    <section className="min-h-screen col-span-6 bg-gray-100 w-1/2 md:w-1/2 fixed right-0 top-0 hidden  lg:flex md:flex">
       <Image
         src="/brand.svg"
         alt="Brand Image"
