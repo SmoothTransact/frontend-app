@@ -76,7 +76,7 @@ export default function ResetPasswordComponent() {
                   type="email"
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email here"
-                  className="w-full border-[1.5px] !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-blue-600 focus:!border-t-blue-600 focus:ring-blue-600/10"
+                  className="w-full border-[1.5px] !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-blue-600 mt-2 focus:!border-t-blue-600 focus:ring-blue-600/10"
                   labelProps={{
                     className: "hidden",
                   }}
