@@ -2,26 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+.onboardScreen {
+  @apply lg:min-h-screen grid grid-cols-12 items-center justify-center text-center font-semibold mx-auto;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+.onboardScreenLeft {
+  @apply relative  flex justify-center  min-h-screen items-center lg:col-span-6 md:col-span-6 col-span-12 text-center lg:bg-transparent mt-0  bg-gray-50 lg:px-0;
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.onboardCreateButton {
+  @apply lg:w-[440px] w-[294px] my-2 bg-gray-900 text-gray-50 rounded-full px-8 py-[14px] lg:text-lg text-base;
+}
+
+.onboardSignInButton {
+  @apply lg:w-[440px] w-[294px] my-2 bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base;
 }
