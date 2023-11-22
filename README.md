@@ -25,7 +25,7 @@ Smooth Transact is an application designed with Next.js to simplify payment proc
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/smooth-transact.git
+   git clone https://github.com/SmoothTransact/frontend-app.git
    ```
 
 cd smooth-transact
@@ -62,7 +62,7 @@ npm run dev
 ## Technologies Used
 
 - Frontend Framework: [Next.js](https://nextjs.org/)
-- Styling: CSS with SASS
+- Styling: CSS with TAILWIND CSS
 - Database: [Choose your preferred database system]
 
 ## Contributing
