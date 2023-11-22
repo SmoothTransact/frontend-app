@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 .onboardScreen {
-  @apply lg:min-h-screen grid grid-cols-12 items-center justify-center text-center  lg:bg-transparent  font-semibold mx-auto;
+  @apply lg:min-h-screen md:min-h-screen grid grid-cols-12 items-center justify-center text-center lg:bg-transparent font-semibold mx-auto;
 }
 
 .onboardScreenLeft {
-  @apply relative  flex justify-center items-center lg:col-span-6 md:col-span-6 col-span-12 text-center lg:bg-transparent mt-0  bg-gray-50 lg:px-0;
+  @apply relative  flex justify-center lg:min-h-screen items-center lg:col-span-6 md:col-span-6 col-span-12 text-center lg:bg-transparent md:bg-transparent mt-0  bg-gray-50 lg:px-0;
 }
 
 .onboardCreateButton {
