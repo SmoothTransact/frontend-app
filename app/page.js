@@ -10,7 +10,6 @@ export default function Home() {
         <div className="lg:max-w-[440px] mb-4 mt-0">
           <div className="lg:hidden md:hidden sm:hidden px-0 top-0 ">
             <Image
-              // src="/brand_mobile.svg"
               src={brandImg}
               alt="Brand Image"
               className="dark:invert"
