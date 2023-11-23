@@ -21,7 +21,7 @@ export default function LoginComponent() {
     <main className="onboardScreen">
       <section className="onboardScreenLeft">
         <div className="lg:max-w-[440px] mb-4 mt-0">
-          <div className="lg:hidden md:hidden sm:hidden px-0 top-0 ">
+          <div className="lg:hidden md:hidden px-0 top-0 ">
             <Image
               src={brandImg}
               alt="Brand Image"

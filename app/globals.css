@@ -7,7 +7,7 @@
 }
 
 .onboardScreenLeft {
-  @apply relative  flex justify-center lg:min-h-screen items-center lg:col-span-6 md:col-span-6 col-span-12 text-center lg:bg-transparent md:bg-transparent mt-0  bg-gray-50 lg:px-0;
+  @apply relative  lg:flex justify-center lg:min-h-screen items-center lg:col-span-6 md:col-span-6 col-span-12 text-center lg:bg-transparent md:bg-transparent mt-0  bg-gray-50 lg:px-0;
 }
 
 .onboardCreateButton {
