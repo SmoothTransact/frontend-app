@@ -1,5 +1,5 @@
 import ResetComponent from "./ResetComponent";
 
-export default function Verified() {
+export default function Reset() {
   return <ResetComponent />;
 }

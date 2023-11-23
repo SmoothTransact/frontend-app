@@ -1,5 +1,5 @@
 import ResetPasswordComponent from "./ResetPasswordComponent";
 
-export default function Verified() {
+export default function ResetPassword() {
   return <ResetPasswordComponent />;
 }

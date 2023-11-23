@@ -86,7 +86,7 @@ export default function ResetPasswordChangeComponent() {
                   }}
                 />
                 <span
-                  className="absolute right-3 top-[18px] cursor-pointer"
+                  className="absolute right-3 top-[25px] cursor-pointer"
                   aria-label="toggle password visibility "
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -131,7 +131,7 @@ export default function ResetPasswordChangeComponent() {
                   }}
                 />
                 <span
-                  className="absolute right-3 top-[18px] cursor-pointer"
+                  className="absolute right-3 top-[25px] cursor-pointer"
                   aria-label="toggle password visibility "
                   onClick={() => setShowPassword(!showPassword)}
                 >
