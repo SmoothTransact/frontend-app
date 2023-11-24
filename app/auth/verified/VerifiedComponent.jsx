@@ -10,6 +10,8 @@ export { Input, Typography };
 import fi_loader from "../../../public/fi_loader.svg";
 import fi_check from "../../../public/fi_check.svg";
 import error_outline from "../../../public/error_outline.svg";
+import Button from "@/app/components/Button";
+import TextInput from "@/app/components/Input";
 
 export default function VerifiedComponent() {
   const [isPending, setIsPending] = useState(false);
@@ -51,8 +53,7 @@ export default function VerifiedComponent() {
               priority
             />
           </div>
-          {/* <div className="px-6 flex justify-center flex-col items-center lg:min-h-screen w-auto "> */}
-          <div className="px-6 flex justify-center flex-col items-center lg:min-h-screen mt-8 lg:py-0 py-10 w-auto ">
+          <div className="px-6 flex justify-center flex-col lg:items-start items-center lg:min-h-screen mt-6 lg:py-0 py-16 w-auto ">
             <h2 className="lg:text-[40px] text-[32px] font-bold text-center text-gray-900">
               Verify your email
             </h2>
@@ -61,72 +62,65 @@ export default function VerifiedComponent() {
               We have sent a pin to jo*******@gmail.com
             </p>
 
-            <div className="flex justify-center items-center text-center flex-col">
+            <div className="flex lg:items-start items-start flex-col">
               <Typography
                 variant="h5"
-                className="text-gray-600 text-sm text-left w-full my-3"
+                className="text-neutral-600 text-sm text-left w-full my-3"
               >
                 Pin number
-                <Input
+                <TextInput
                   variant="outlined"
                   type="number"
+                  value={pin}
                   onChange={(e) => setPin(e.target.value)}
                   placeholder="Enter pin here"
-                  className="border-[1.5px] !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-blue-600 mt-2 focus:!border-t-blue-600 focus:ring-blue-600/10"
-                  labelProps={{
-                    className: "hidden",
-                  }}
                 />
+              </Typography>
+
+              <section>
                 <p
                   className={
                     message
-                      ? "flex items-center justify-start text-red-500 text-sm gap-2 my-2"
+                      ? "flex items-start text-left justify-start text-red-500 text-sm gap-2 mt-3"
                       : "hidden my-2"
                   }
                 >
                   <Image src={error_outline} alt="loader" className="" />{" "}
                   {message}
                 </p>
-              </Typography>
-
-              {verified ? (
-                <span className="my-8">
-                  <p className="text-green-500 flex gap-2 items-center justify-center">
-                    {" "}
-                    <Image src={fi_check} alt="loader" className="" />
-                    Verified
-                  </p>
-                </span>
-              ) : (
-                <button
-                  className={
-                    isPending
-                      ? "bg-[#A5A9C2] text-gray-100 lg:w-[440px] w-[294px] my-2 rounded-full px-8 py-[14px] lg:text-lg text-base "
-                      : "onboardCreateButton"
-                  }
-                  onClick={handleVerified}
-                >
-                  {isPending ? (
-                    <span className="flex items-center justify-center">
-                      <Image
-                        src={fi_loader}
-                        alt="loader"
-                        className="animate-spin"
-                      />
-                      Verifying...
+                <div>
+                  {verified ? (
+                    <span className="my-8">
+                      <p className="text-green-500 flex gap-2 items-center justify-center">
+                        {" "}
+                        <Image src={fi_check} alt="loader" className="" />
+                        Verified
+                      </p>
                     </span>
                   ) : (
-                    "Submit"
+                    <>
+                      <Button
+                        label={isPending ? "Submitting ..." : "Submit"}
+                        onClick={handleVerified}
+                        variant="primary"
+                        isLoading={isPending}
+                      />
+                    </>
                   )}
-                </button>
-              )}
-              <button className="onboardSignInButton">Send another pin</button>
-              <div className="my-10">
-                <p className="text-gray-700 my-[10px]">Wrong email?</p>
-                <Link href="/auth/email" className="text-gray-900  my-[10px]">
-                  Change your email here
-                </Link>
-              </div>
+                </div>
+                <Button
+                  label="Send another pin"
+                  // onClick={handleReset}
+                  variant="secondary"
+                  // isLoading={isPending}
+                />
+                <div className="my-10">
+                  <p className="text-neutral-700 my-[10px]">Wrong email?</p>
+                  <Link href="/auth/email" className="text-gray-900  my-[10px]">
+                    Change your email here
+                  </Link>
+                </div>
+              </section>
             </div>
           </div>
         </div>

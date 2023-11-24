@@ -1,6 +1,6 @@
 import "./globals.css";
-// import { Oswald } from "next/font/google";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { Providers } from "./utils/redux/provider";
 
 const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
@@ -13,7 +13,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={plusJakartaSans.className}>
-        <main>{children}</main>
+        <Providers>
+          <main>{children}</main>
+        </Providers>
       </body>
     </html>
   );
