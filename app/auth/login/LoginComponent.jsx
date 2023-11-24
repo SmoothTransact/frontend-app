@@ -7,6 +7,8 @@ import Link from "next/link";
 import open_eye from "../../../public/open_eye.svg";
 import { useState } from "react";
 import fi_eyeoff from "../../../public/fi_eyeoff.svg";
+import fi_check from "../../../public/fi_check.svg";
+
 import error_outline from "../../../public/error_outline.svg";
 import { Typography } from "@material-tailwind/react";
 export { Typography };
@@ -28,6 +30,7 @@ export default function LoginComponent() {
   const [emailMessage, setEmailMessage] = useState("");
   const [email, setEmail] = useState(""); // Initialize email state
   const [err, setErr] = useState(""); //
+  const [notifyMessage, setNotifyMessage] = useState("");
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -37,15 +40,9 @@ export default function LoginComponent() {
   const handleLogin = async () => {
     setIsPending(true);
 
-    if (error && error.data.message.includes("User already exists")) {
+    if (error) {
       setErr(error.data.message);
-      // setNotifyMessage("");
-      // setOtherError("");
-    }
-    if (error && error.data.message.includes("Internal server error")) {
-      // setOtherError(error.data.message);
       setErr("");
-      // setNotifyMessage("");
     }
 
     const userData = {
@@ -55,11 +52,12 @@ export default function LoginComponent() {
     try {
       const result = await login(userData);
       if (await data) {
+        setNotifyMessage(data.message);
         setErr("");
       }
 
-      console.log("This is result", result);
-      console.log("This is data", data);
+      setNotifyMessage(result.data.message);
+
       dispatch(dispatchIsLogged());
       dispatch(dispatchUserToken(result.data.data.accessToken));
       dispatch(dispatchUserRefreshToken(result.data.data.refreshToken));
@@ -121,6 +119,16 @@ export default function LoginComponent() {
                   placeholder="Enter your email address"
                 />
               </Typography>
+              <p
+                className={
+                  emailMessage
+                    ? "flex items-center justify-start text-red-500 text-sm gap-2 my-2"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={error_outline} alt="loader" className="" />{" "}
+                {emailMessage}
+              </p>
               <Typography
                 variant="h5"
                 className="text-neutral-600 text-sm text-left w-full my-5 relative"
@@ -152,21 +160,30 @@ export default function LoginComponent() {
                     />
                   )}
                 </span>
-                <p
-                  className={
-                    emailMessage
-                      ? "flex items-center justify-start text-red-500 text-sm gap-2 my-2"
-                      : "hidden my-2"
-                  }
-                >
-                  <Image src={error_outline} alt="loader" className="" />{" "}
-                  {emailMessage}
-                </p>
               </Typography>
 
               <div className="mb-3 mt-6 flex items-start text-left ">
-                <Link href="/auth/resetpassword">Forgot password?</Link>
+                <Link href="/auth/forgotpassword">Forgot password?</Link>
               </div>
+              <p
+                className={
+                  notifyMessage
+                    ? "flex items-start text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={fi_check} alt="loader" className="" />
+                {notifyMessage}
+              </p>
+              <p
+                className={
+                  err
+                    ? "flex items-center justify-start text-red-500 text-sm gap-2 my-2"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={error_outline} alt="loader" className="" /> {err}
+              </p>
 
               <Button
                 label={isPending ? "Signing in..." : "Sign in"}

@@ -5,9 +5,34 @@ import Link from "next/link";
 // import logo from "../assets/evaactive_logo.png";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { usePathname } from "next/navigation";
+import { useLogoutMutation } from "@/app/utils/rtk/apiSlice";
+import { useDispatch } from "react-redux";
+import { dispatchLogout } from "@/app/utils/redux/userSlice";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const MobileView = ({ navbar, setNavbar }) => {
+  const [isPending, setIsPending] = useState(false);
+  const dispatch = useDispatch();
+  const router = useRouter();
   const pathname = usePathname();
+
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    setIsPending(true);
+    try {
+      await logout();
+      setNavbar(!navbar);
+      dispatch(dispatchLogout());
+      router.push("auth/login");
+    } catch (er) {
+      console.error(`${er.message}`);
+      setIsPending(false);
+    } finally {
+      setIsPending(false);
+    }
+  };
   return (
     <div className="fixed top-0 left-0 z-50 h-[100vh] w-full lg:hidden block">
       <div className="relative">
@@ -89,17 +114,13 @@ const MobileView = ({ navbar, setNavbar }) => {
             {" "}
             Settings
           </Link>
-          <Link
-            href="/logout"
-            className={
-              pathname == "/logout"
-                ? " py-3 px-4  bg-red-500 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
-                : " text-red-500  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-red-500 flex group items-center justify-start gap-2"
-            }
+          <button
+            onClick={handleLogout}
+            className=" text-red-500  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-red-500 flex group items-center justify-start gap-2"
           >
             {" "}
-            Log out
-          </Link>
+            {isPending ? "Logging out" : "Logout"}
+          </button>
         </div>
         {/* Mobile Nav */}
         <section className="text-center flex justify-center w-full">

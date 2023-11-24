@@ -9,29 +9,57 @@ import { Typography } from "@material-tailwind/react";
 export { Typography };
 import TextInput from "@/app/components/Input";
 import fi_check from "../../../public/fi_check.svg";
+import open_eye from "../../../public/open_eye.svg";
+import fi_eyeoff from "../../../public/fi_eyeoff.svg";
 import error_outline from "../../../public/error_outline.svg";
 import Button from "@/app/components/Button";
+import { useResetpasswordMutation } from "@/app/utils/rtk/apiSlice";
 
 export default function ResetComponent() {
   const [isPending, setIsPending] = useState(false);
-  const [verified, setVerified] = useState(false);
-  const [pin, setPin] = useState("");
-  const [message, setmessage] = useState("");
-  const handleReset = (e) => {
-    e.preventDefault();
+  const [showPassword, setShowPassword] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [err, setErr] = useState(""); //
+  const [notifyMessage, setNotifyMessage] = useState("");
+
+  const [resetpassword, { isLoading, error, data }] =
+    useResetpasswordMutation();
+
+  const handleResetPassword = async () => {
     setIsPending(true);
-    if (pin.length !== 6) {
-      setTimeout(() => {
-        setmessage("Incorrect email");
-        setIsPending(false);
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        console.log("verified");
-        setIsPending(false);
-        setVerified(true);
-        setmessage("");
-      }, 3000);
+
+    if (error) {
+      setErr(error.data.message);
+      console.log(error);
+      setNotifyMessage("");
+    }
+
+    const userData = {
+      email,
+      otp,
+      newPassword,
+    };
+    try {
+      const result = await resetpassword(userData);
+      if (await data) {
+        setNotifyMessage(data.message);
+        setErr("");
+      }
+
+      setNotifyMessage(result.data.message);
+
+      setIsPending(false);
+      setEmail("");
+      setOtp("");
+      setNewPassword("");
+      router.push("/auth/login");
+    } catch (er) {
+      console.error(`${er.message}`);
+      setIsPending(false);
+    } finally {
+      setIsPending(false);
     }
   };
   return (
@@ -40,7 +68,6 @@ export default function ResetComponent() {
         <div className="lg:max-w-[470px] mb-4 mt-0">
           <div className="lg:hidden md:hidden px-0 top-0 ">
             <Image
-              // src="/brand_mobile.svg"
               src={brandImg}
               alt="Brand Image"
               className="dark:invert"
@@ -58,12 +85,10 @@ export default function ResetComponent() {
             </h2>
 
             <p className="my-3 text-gray-700 lg:text-left text-center max-w-[440px] lg:text-lg text-base">
-              We have sent a link to jo*****@gmail.com with a link to reset
-              password.
+              We have sent an OTP to your email address. Enter the OTP to reset.
             </p>
 
-            {/* <div className="flex lg:justify-center lg:items-center lg:text-center justify-start items-start text-left flex-col"> */}
-            <div className="flex lg:items-start items-start flex-col">
+            <form className="flex lg:items-start items-start flex-col">
               <Typography
                 variant="h5"
                 className="text-gray-600 text-sm text-left w-full my-3"
@@ -72,49 +97,84 @@ export default function ResetComponent() {
                 <TextInput
                   variant="outlined"
                   type="email"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  placeholder="johnjoe@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
                 />
+              </Typography>
+              <Typography
+                variant="h5"
+                className="text-neutral-600 text-sm text-left w-full my-5"
+              >
+                OTP
+                <TextInput
+                  variant="outlined"
+                  type="number"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="Enter your otp"
+                />
+              </Typography>
+              <Typography
+                variant="h5"
+                className="text-neutral-600 text-sm text-left w-full my-5 relative"
+              >
+                New Password
+                <TextInput
+                  variant="outlined"
+                  value={newPassword}
+                  type={showPassword ? "text" : "password"}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter your new password"
+                />
+                <span
+                  className="absolute right-3 top-[30px] cursor-pointer"
+                  aria-label="toggle password visibility "
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <Image
+                      src={fi_eyeoff}
+                      alt="Eye Icon"
+                      className="w-[20px] h-[20px] my-3 "
+                    />
+                  ) : (
+                    <Image
+                      src={open_eye}
+                      alt="Eye Icon"
+                      className="w-[20px] h-[20px] my-3 "
+                    />
+                  )}
+                </span>
               </Typography>
 
               <p
                 className={
-                  message
+                  notifyMessage
+                    ? "flex items-start text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={fi_check} alt="loader" className="" />
+                {notifyMessage}
+              </p>
+              <p
+                className={
+                  err
                     ? "flex items-start text-left justify-start text-red-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
-                <Image src={error_outline} alt="loader" className="" />{" "}
-                {message}
+                <Image src={error_outline} alt="loader" className="" /> {err}
               </p>
-              <div>
-                {verified ? (
-                  <span className="my-8">
-                    <p className="text-green-500 flex gap-2 items-center justify-center">
-                      {" "}
-                      <Image src={fi_check} alt="loader" className="" />
-                      Verified
-                    </p>
-                  </span>
-                ) : (
-                  <>
-                    <Button
-                      label={isPending ? "Resending link..." : "Resend link"}
-                      onClick={handleReset}
-                      variant="primary"
-                      isLoading={isPending}
-                    />
-                  </>
-                )}
-              </div>
+
               <Button
-                label="Change email"
-                // onClick={handleReset}
-                variant="secondary"
-                // isLoading={isPending}
+                label={isPending ? "Resetting..." : "Reset Password"}
+                onClick={handleResetPassword}
+                variant="primary"
+                isLoading={isLoading || isPending}
               />
-            </div>
+            </form>
           </div>
         </div>
       </section>

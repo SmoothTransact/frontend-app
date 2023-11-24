@@ -22,11 +22,32 @@ export const api = createApi({
     }),
     logout: builder.mutation({
       query: () => ({
-        url: "auth/logout",
+        url: "auth/signout",
+        method: "GET",
+      }),
+    }),
+
+    forgotpassword: builder.mutation({
+      query: (email) => ({
+        url: "auth/forgot-password",
         method: "POST",
+        body: email,
+      }),
+    }),
+    resetpassword: builder.mutation({
+      query: (userData) => ({
+        url: "auth/reset-password",
+        method: "POST",
+        body: userData,
       }),
     }),
   }),
 });
 
-export const { useLoginMutation, useSignupMutation, useLogoutMutation } = api;
+export const {
+  useLoginMutation,
+  useSignupMutation,
+  useLogoutMutation,
+  useForgotpasswordMutation,
+  useResetpasswordMutation,
+} = api;

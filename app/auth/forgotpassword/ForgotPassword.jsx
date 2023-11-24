@@ -12,32 +12,59 @@ import fi_check from "../../../public/fi_check.svg";
 import error_outline from "../../../public/error_outline.svg";
 import TextInput from "@/app/components/Input";
 import Button from "@/app/components/Button";
+import { useForgotpasswordMutation } from "@/app/utils/rtk/apiSlice";
+import { useRouter } from "next/navigation";
 
-export default function ResetPasswordComponent() {
+export default function ForgotPasswordComponent() {
   const [isPending, setIsPending] = useState(false);
-  const [verified, setVerified] = useState(false);
   const [email, setEmail] = useState("");
-  const [message, setmessage] = useState("");
-  const handleResetPassword = (e) => {
-    e.preventDefault();
+  const [err, setErr] = useState("");
+  const [notifyMessage, setNotifyMessage] = useState("");
+  const router = useRouter();
+
+  const [forgotpassword, { isLoading, error, data }] =
+    useForgotpasswordMutation();
+
+  const handleForgotPassword = async () => {
+    setIsPending(true);
+
+    if (error) {
+      setErr(error.data.message);
+      setNotifyMessage("");
+    }
 
     let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
     setIsPending(true);
     if (!emailRegex.test(email)) {
-      setTimeout(() => {
-        setmessage("Incorrect Email");
-        setIsPending(false);
-      }, 1000);
-    } else {
-      setTimeout(() => {
-        console.log("verified");
-        setIsPending(false);
-        setVerified(true);
-        setEmail("");
-        setmessage("");
-      }, 3000);
+      setErr("Kindly enter the right email");
+      setIsPending(false);
+    }
+
+    const userData = {
+      email,
+    };
+    try {
+      const result = await forgotpassword(userData);
+      if (await data) {
+        setNotifyMessage(`${data.message}, and has been sent to your email`);
+        setErr("");
+      }
+
+      setNotifyMessage(
+        `${result.data.message}, and has been sent to your email`
+      );
+      setIsPending(false);
+      setEmail("");
+
+      router.push("/auth/reset");
+    } catch (er) {
+      console.error(`${er.message}`);
+      setIsPending(false);
+    } finally {
+      setIsPending(false);
     }
   };
+
   return (
     <main className="onboardScreen">
       <section className="onboardScreenLeft">
@@ -83,33 +110,30 @@ export default function ResetPasswordComponent() {
 
               <p
                 className={
-                  message
+                  notifyMessage
+                    ? "flex items-start text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={fi_check} alt="loader" className="" />
+                {notifyMessage}
+              </p>
+              <p
+                className={
+                  err
                     ? "flex items-start text-left justify-start text-red-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
-                <Image src={error_outline} alt="loader" className="" />{" "}
-                {message}
+                <Image src={error_outline} alt="loader" className="" /> {err}
               </p>
-              <div>
-                {verified && (
-                  <span className="">
-                    <p className="text-green-500 mt-3 flex gap-2 items-start text-left justify-start text-sm">
-                      {" "}
-                      <Image src={fi_check} alt="loader" className="" />
-                      Email link has been sent to your email address
-                    </p>
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center justify-center w-full">
-                <Button
-                  label={isPending ? "Submiitting..." : "Submit link"}
-                  onClick={handleResetPassword}
-                  variant="primary"
-                  isLoading={isPending}
-                />
-              </div>
+
+              <Button
+                label={isPending ? "Submiitting..." : "Submit"}
+                onClick={handleForgotPassword}
+                variant="primary"
+                isLoading={isLoading || isPending}
+              />
             </div>
           </div>
         </div>
