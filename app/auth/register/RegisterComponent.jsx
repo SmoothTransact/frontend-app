@@ -14,6 +14,7 @@ export { Typography };
 import TextInput from "@/app/components/Input";
 import Button from "@/app/components/Button";
 import { useSignupMutation } from "../../utils/rtk/apiSlice";
+import { useRouter } from "next/navigation";
 
 export default function RegisterComponent() {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,6 +25,8 @@ export default function RegisterComponent() {
   const [otherError, setOtherError] = useState("");
   const [notifyMessage, setNotifyMessage] = useState("");
   const [isPending, setIsPending] = useState(false);
+
+  const router = useRouter();
 
   const [signup, { isLoading, error, data }] = useSignupMutation();
 
@@ -62,6 +65,7 @@ export default function RegisterComponent() {
       setFullName("");
       setEmail("");
       setPassword("");
+      router.push("/auth/login");
     } catch (er) {
       console.error(`${er.message}`);
       setIsPending(false);
