@@ -2,24 +2,24 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import RightOnboard from "../../components/auth/RightOnboard";
-import brandImg from "../../../public/brand_mobile.svg";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Typography } from "@material-tailwind/react";
 export { Typography };
-import fi_loader from "../../../public/fi_loader.svg";
+
+import { useForgotpasswordMutation } from "@/app/utils/rtk/apiSlice";
+import RightOnboard from "../../components/auth/RightOnboard";
+import brandImg from "../../../public/brand_mobile.svg";
 import fi_check from "../../../public/fi_check.svg";
 import error_outline from "../../../public/error_outline.svg";
 import TextInput from "@/app/components/Input";
 import Button from "@/app/components/Button";
-import { useForgotpasswordMutation } from "@/app/utils/rtk/apiSlice";
-import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordComponent() {
   const [isPending, setIsPending] = useState(false);
   const [email, setEmail] = useState("");
-  const [err, setErr] = useState("");
-  const [notifyMessage, setNotifyMessage] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [generalMessage, setGeneralMessage] = useState("");
+
   const router = useRouter();
 
   const [forgotpassword, { isLoading, error, data }] =
@@ -29,14 +29,14 @@ export default function ForgotPasswordComponent() {
     setIsPending(true);
 
     if (error) {
-      setErr(error.data.message);
-      setNotifyMessage("");
+      setEmailMessage(error.data.message);
+      setGeneralMessage("");
     }
 
     let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
     setIsPending(true);
     if (!emailRegex.test(email)) {
-      setErr("Kindly enter the right email");
+      setEmailMessage("Kindly enter the right email");
       setIsPending(false);
     }
 
@@ -46,13 +46,15 @@ export default function ForgotPasswordComponent() {
     try {
       const result = await forgotpassword(userData);
       if (await data) {
-        setNotifyMessage(`${data.message}, and has been sent to your email`);
-        setErr("");
+        setGeneralMessage(`${data.message}, and has been sent to your email`);
+        setEmailMessage("");
+        setIsPending(false);
       }
 
-      setNotifyMessage(
+      setGeneralMessage(
         `${result.data.message}, and has been sent to your email`
       );
+      setEmailMessage("");
       setIsPending(false);
       setEmail("");
 
@@ -102,6 +104,7 @@ export default function ForgotPasswordComponent() {
                 <TextInput
                   variant="outlined"
                   type="email"
+                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
@@ -110,22 +113,23 @@ export default function ForgotPasswordComponent() {
 
               <p
                 className={
-                  notifyMessage
-                    ? "flex items-start text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                  generalMessage
+                    ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
                 <Image src={fi_check} alt="loader" className="" />
-                {notifyMessage}
+                {generalMessage}
               </p>
               <p
                 className={
-                  err
-                    ? "flex items-start text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                  emailMessage
+                    ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
-                <Image src={error_outline} alt="loader" className="" /> {err}
+                <Image src={error_outline} alt="loader" className="" />{" "}
+                {emailMessage}
               </p>
 
               <Button

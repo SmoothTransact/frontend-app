@@ -14,6 +14,7 @@ import fi_eyeoff from "../../../public/fi_eyeoff.svg";
 import error_outline from "../../../public/error_outline.svg";
 import Button from "@/app/components/Button";
 import { useResetpasswordMutation } from "@/app/utils/rtk/apiSlice";
+import { number } from "prop-types";
 
 export default function ResetComponent() {
   const [isPending, setIsPending] = useState(false);
@@ -21,19 +22,65 @@ export default function ResetComponent() {
   const [otp, setOtp] = useState("");
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [err, setErr] = useState(""); //
-  const [notifyMessage, setNotifyMessage] = useState("");
+
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [generalMessage, setGeneralMessage] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [otpMessage, setOtpMessage] = useState("");
 
   const [resetpassword, { isLoading, error, data }] =
     useResetpasswordMutation();
 
-  const handleResetPassword = async () => {
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
     setIsPending(true);
 
-    if (error) {
-      setErr(error.data.message);
-      console.log(error);
-      setNotifyMessage("");
+    if (error && error.data.message.includes("Internal server error")) {
+      setGeneralMessage(error.data.message);
+      setEmailMessage("");
+      setPasswordMessage("");
+      setOtpMessage("");
+      setPasswordMessage("");
+      setSuccessMessage("");
+      setIsPending(false);
+    }
+
+    let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
+    setIsPending(true);
+    if (!emailRegex.test(email)) {
+      setEmailMessage("Kindly enter the right email");
+      setIsPending(false);
+    }
+
+    if (!newPassword || !email || !otp) {
+      setGeneralMessage("All inputs are required to Reset Password");
+      setEmailMessage("");
+      setSuccessMessage("");
+      setPasswordMessage("");
+      setIsPending(false);
+      return false;
+    }
+
+    if (otp.length < 6) {
+      setOtpMessage("OTP must be 6 digits numbers only");
+      setPasswordMessage("");
+      setGeneralMessage("");
+      setEmailMessage("");
+      setSuccessMessage("");
+      setErrorMessage("");
+      setIsPending(false);
+      return false;
+    }
+    if (newPassword.length < 6) {
+      setPasswordMessage("Password must be more than 6 characters");
+      setEmailMessage("");
+      setOtpMessage("");
+      setSuccessMessage("");
+      setErrorMessage("");
+      setIsPending(false);
+      return false;
     }
 
     const userData = {
@@ -44,11 +91,15 @@ export default function ResetComponent() {
     try {
       const result = await resetpassword(userData);
       if (await data) {
-        setNotifyMessage(data.message);
-        setErr("");
+        setSuccessMessage(data.message);
+        setErrorMessage("");
+        setEmailMessage("");
+        setOtpMessage("");
+        setPasswordMessage("");
+        setGeneralMessage("");
       }
 
-      setNotifyMessage(result.data.message);
+      setSuccessMessage(result.data.message);
 
       setIsPending(false);
       setEmail("");
@@ -97,11 +148,22 @@ export default function ResetComponent() {
                 <TextInput
                   variant="outlined"
                   type="email"
+                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                 />
               </Typography>
+              <p
+                className={
+                  emailMessage
+                    ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={error_outline} alt="loader" className="" />{" "}
+                {emailMessage}
+              </p>
               <Typography
                 variant="h5"
                 className="text-neutral-600 text-sm text-left w-full my-5"
@@ -110,11 +172,22 @@ export default function ResetComponent() {
                 <TextInput
                   variant="outlined"
                   type="number"
+                  required
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   placeholder="Enter your otp"
                 />
               </Typography>
+              <p
+                className={
+                  otpMessage
+                    ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={error_outline} alt="loader" className="" />{" "}
+                {otpMessage}
+              </p>
               <Typography
                 variant="h5"
                 className="text-neutral-600 text-sm text-left w-full my-5 relative"
@@ -122,6 +195,7 @@ export default function ResetComponent() {
                 New Password
                 <TextInput
                   variant="outlined"
+                  required
                   value={newPassword}
                   type={showPassword ? "text" : "password"}
                   onChange={(e) => setNewPassword(e.target.value)}
@@ -147,26 +221,53 @@ export default function ResetComponent() {
                   )}
                 </span>
               </Typography>
+              <span className="mb-2">
+                <p
+                  className={
+                    passwordMessage
+                      ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                      : "hidden my-2"
+                  }
+                >
+                  <Image src={error_outline} alt="loader" className="" />
+                  {passwordMessage}
+                </p>
+              </span>
 
               <p
                 className={
-                  notifyMessage
+                  successMessage
                     ? "flex items-start text-left justify-start text-green-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
                 <Image src={fi_check} alt="loader" className="" />
-                {notifyMessage}
+                {successMessage}
               </p>
-              <p
-                className={
-                  err
-                    ? "flex items-start text-left justify-start text-red-500 text-sm gap-2 mt-3"
-                    : "hidden my-2"
-                }
-              >
-                <Image src={error_outline} alt="loader" className="" /> {err}
-              </p>
+              <span className="mb-2">
+                <p
+                  className={
+                    errorMessage
+                      ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                      : "hidden my-2"
+                  }
+                >
+                  <Image src={error_outline} alt="loader" className="" />
+                  {errorMessage}
+                </p>
+              </span>
+              <span className="mb-2">
+                <p
+                  className={
+                    generalMessage
+                      ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                      : "hidden my-2"
+                  }
+                >
+                  <Image src={error_outline} alt="loader" className="" />
+                  {generalMessage}
+                </p>
+              </span>
 
               <Button
                 label={isPending ? "Resetting..." : "Reset Password"}

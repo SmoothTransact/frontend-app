@@ -1,36 +1,45 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
-import RightOnboard from "../../components/auth/RightOnboard";
-import brandImg from "../../../public/brand_mobile.svg";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+// Custom Component Import
+import { useSignupMutation } from "../../utils/rtk/apiSlice";
+import brandImg from "../../../public/brand_mobile.svg";
 import open_eye from "../../../public/open_eye.svg";
 import fi_eyeoff from "../../../public/fi_eyeoff.svg";
 import error_outline from "../../../public/error_outline.svg";
 import fi_check from "../../../public/fi_check.svg";
-import { useState } from "react";
 import { Typography } from "@material-tailwind/react";
 export { Typography };
 import TextInput from "@/app/components/Input";
 import Button from "@/app/components/Button";
-import { useSignupMutation } from "../../utils/rtk/apiSlice";
-import { useRouter } from "next/navigation";
+import RightOnboard from "../../components/auth/RightOnboard";
 
 export default function RegisterComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [err, setErr] = useState("");
-  const [otherError, setOtherError] = useState("");
-  const [notifyMessage, setNotifyMessage] = useState("");
+
+  // Loading State
   const [isPending, setIsPending] = useState(false);
+
+  // Messages
+  const [emailMessage, setEmailMessage] = useState("");
+  const [generalMessage, setGeneralMessage] = useState("");
+  const [fullNameMessage, setFullNameMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
 
   const router = useRouter();
 
   const [signup, { isLoading, error, data }] = useSignupMutation();
 
-  const handleRegister = async () => {
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
     setIsPending(true);
 
     const userData = {
@@ -39,35 +48,72 @@ export default function RegisterComponent() {
       password,
     };
 
-    if (error && error.data.message.includes("User already exists")) {
-      setErr(error.data.message);
-      setNotifyMessage("");
-      setOtherError("");
+    if (!fullName || !email || !password) {
+      setGeneralMessage("All inputs are required to signup");
+      setEmailMessage("");
+      setSuccessMessage("");
+      setPasswordMessage("");
+      setFullNameMessage("");
+      setIsPending(false);
+      return false;
+    } else if (fullName.length < 3) {
+      setFullNameMessage("Full Name must be more than 3 characters");
+      setEmailMessage("");
+      setSuccessMessage("");
+      setPasswordMessage("");
+      setGeneralMessage("");
+      setIsPending(false);
+      return false;
+    } else if (password.length < 6) {
+      setPasswordMessage("Password must be more than 6 characters");
+      setFullNameMessage("");
+      setEmailMessage("");
+      setSuccessMessage("");
+      setGeneralMessage("");
+      setIsPending(false);
+      return false;
+    }
+
+    if (
+      error &&
+      error.data.message.includes("User already exists") &&
+      fullName.length > 3 &&
+      password.length > 6
+    ) {
+      setEmailMessage(error.data.message);
+      setPasswordMessage("");
+      setSuccessMessage("");
+      setFullNameMessage("");
+      setGeneralMessage("");
+      setIsPending(false);
     }
     if (error && error.data.message.includes("Internal server error")) {
-      setOtherError(error.data.message);
-      setErr("");
-      setNotifyMessage("");
+      setGeneralMessage(error.data.message);
+      setEmailMessage("");
+      setFullNameMessage("");
+      setPasswordMessage("");
+      setSuccessMessage("");
+      setIsPending(false);
     }
 
     try {
       const result = await signup(userData);
       if (await data) {
-        setNotifyMessage(data.message);
-        setErr("");
-        setOtherError("");
+        setSuccessMessage(data.message);
+        setEmailMessage("");
+        setGeneralMessage("");
+        setIsPending(false);
       }
 
-      // console.log(result);
-      setNotifyMessage(result.data.message);
+      setSuccessMessage(result.data.message);
 
       setIsPending(false);
       setFullName("");
       setEmail("");
       setPassword("");
       router.push("/auth/login");
-    } catch (er) {
-      console.error(`${er.message}`);
+    } catch (error) {
+      console.error(error.message);
       setIsPending(false);
     } finally {
       setIsPending(false);
@@ -79,7 +125,6 @@ export default function RegisterComponent() {
         <div className="lg:max-w-[440px] mb-4 mt-0">
           <div className="lg:hidden md:hidden  px-0 top-0 ">
             <Image
-              // src="/brand_mobile.svg"
               src={brandImg}
               alt="Brand Image"
               className="dark:invert"
@@ -107,7 +152,7 @@ export default function RegisterComponent() {
 
             <form
               className="flex lg:items-start items-start flex-col"
-              onSubmit={handleRegister}
+              onSubmit={handleRegisterSubmit}
             >
               <Typography
                 variant="h5"
@@ -116,12 +161,23 @@ export default function RegisterComponent() {
                 Full name
                 <TextInput
                   variant="outlined"
+                  required
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Enter your first and last name"
                 />
               </Typography>
+              <p
+                className={
+                  fullNameMessage
+                    ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={error_outline} alt="loader" className="" />
+                {fullNameMessage}
+              </p>
               <Typography
                 variant="h5"
                 className="text-neutral-600 text-sm text-left w-full my-5"
@@ -129,6 +185,7 @@ export default function RegisterComponent() {
                 Email address
                 <TextInput
                   variant="outlined"
+                  required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -138,12 +195,13 @@ export default function RegisterComponent() {
 
               <p
                 className={
-                  err
+                  emailMessage
                     ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
-                <Image src={error_outline} alt="loader" className="" /> {err}
+                <Image src={error_outline} alt="loader" className="" />{" "}
+                {emailMessage}
               </p>
               <Typography
                 variant="h5"
@@ -151,6 +209,7 @@ export default function RegisterComponent() {
               >
                 Password
                 <TextInput
+                  required
                   variant="outlined"
                   value={password}
                   type={showPassword ? "text" : "password"}
@@ -177,29 +236,41 @@ export default function RegisterComponent() {
                   )}
                 </span>
               </Typography>
+              <span className="mb-2">
+                <p
+                  className={
+                    passwordMessage
+                      ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                      : "hidden my-2"
+                  }
+                >
+                  <Image src={error_outline} alt="loader" className="" />
+                  {passwordMessage}
+                </p>
+              </span>
               <p
                 className={
-                  notifyMessage
-                    ? "flex items-start text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                  successMessage
+                    ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
                 <Image src={fi_check} alt="loader" className="" />
-                {notifyMessage}
+                {successMessage}
               </p>
               <p
                 className={
-                  otherError
+                  generalMessage
                     ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
                 <Image src={error_outline} alt="loader" className="" />{" "}
-                {otherError}
+                {generalMessage}
               </p>
               <Button
                 label={isPending ? "Creating account..." : "Create account"}
-                onClick={handleRegister}
+                onClick={handleRegisterSubmit}
                 variant="primary"
                 isLoading={isLoading || isPending}
               />
