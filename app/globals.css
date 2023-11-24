@@ -2,18 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap");
+
+input {
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  height: 50px !important;
+}
+
 .onboardScreen {
   @apply lg:min-h-screen md:min-h-screen grid grid-cols-12 items-center justify-center text-center lg:bg-transparent font-semibold mx-auto;
 }
 
 .onboardScreenLeft {
-  @apply relative  lg:flex justify-center lg:min-h-screen items-center lg:col-span-6 md:col-span-6 col-span-12 text-center lg:bg-transparent md:bg-transparent mt-0  bg-gray-50 lg:px-0;
+  @apply relative  lg:flex justify-center lg:min-h-screen items-center lg:col-span-6 md:col-span-6 col-span-12 text-center lg:bg-transparent md:bg-transparent mt-0  bg-white lg:px-0;
 }
 
 .onboardCreateButton {
-  @apply lg:w-[440px] w-[294px] my-2 bg-gray-900 text-gray-50 rounded-full px-8 py-[14px] lg:text-lg text-base;
+  @apply lg:w-[440px] lg:h-[54px] h-[52px] w-[294px] mt-9 bg-gray-900 text-white rounded-full px-8 py-[14px] lg:text-lg text-base;
 }
 
 .onboardSignInButton {
-  @apply lg:w-[440px] w-[294px] my-2 bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base;
+  @apply lg:w-[440px] lg:h-[54px] h-[52px] w-[294px] my-2 bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@layer utilities {
+  @variants responsive {
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

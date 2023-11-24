@@ -1,21 +1,80 @@
 "use client";
 
 import Image from "next/image";
-import RightOnboard from "../../components/auth/RightOnboard";
+import RightOnboard from "@/app/components/auth/RightOnboard";
 import brandImg from "../../../public/brand_mobile.svg";
 import Link from "next/link";
 import open_eye from "../../../public/open_eye.svg";
-import { Input, Typography } from "@material-tailwind/react";
 import { useState } from "react";
 import fi_eyeoff from "../../../public/fi_eyeoff.svg";
 import error_outline from "../../../public/error_outline.svg";
-
-export { Input, Typography };
+import { Typography } from "@material-tailwind/react";
+export { Typography };
+import TextInput from "@/app/components/Input";
+import Button from "@/app/components/Button";
+import { useLoginMutation } from "@/app/utils/rtk/apiSlice";
+import { useDispatch } from "react-redux";
+import {
+  dispatchIsLogged,
+  dispatchUserRefreshToken,
+  dispatchUserToken,
+} from "@/app/utils/redux/userSlice";
+import { useRouter } from "next/navigation";
 
 export default function LoginComponent() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [password, setPassword] = useState(false);
-  const [message, setmessage] = useState("");
+  const [emailMessage, setEmailMessage] = useState("");
+  const [email, setEmail] = useState(""); // Initialize email state
+  const [err, setErr] = useState(""); //
+
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const [login, { isLoading, error, data }] = useLoginMutation();
+
+  const handleLogin = async () => {
+    setIsPending(true);
+
+    if (error && error.data.message.includes("User already exists")) {
+      setErr(error.data.message);
+      // setNotifyMessage("");
+      // setOtherError("");
+    }
+    if (error && error.data.message.includes("Internal server error")) {
+      // setOtherError(error.data.message);
+      setErr("");
+      // setNotifyMessage("");
+    }
+
+    const userData = {
+      email,
+      password,
+    };
+    try {
+      const result = await login(userData);
+      if (await data) {
+        setErr("");
+      }
+
+      console.log("This is result", result);
+      console.log("This is data", data);
+      dispatch(dispatchIsLogged());
+      dispatch(dispatchUserToken(result.data.data.accessToken));
+      dispatch(dispatchUserRefreshToken(result.data.data.refreshToken));
+
+      setIsPending(false);
+      setEmail("");
+      setPassword("");
+      router.push("/dashboard");
+    } catch (er) {
+      console.error(`${er.message}`);
+      setIsPending(false);
+    } finally {
+      setIsPending(false);
+    }
+  };
 
   return (
     <main className="onboardScreen">
@@ -34,14 +93,13 @@ export default function LoginComponent() {
               priority
             />
           </div>
-          {/* <div className="px-6 flex justify-center flex-col items-center lg:min-h-screen w-auto "> */}
-          <div className="px-6 flex justify-center flex-col items-center lg:min-h-screen mt-6 lg:py-0 py-16 w-auto ">
-            <h2 className="lg:text-[40px] text-[32px] font-bold text-center text-gray-900">
+          <div className="px-6 flex justify-center flex-col lg:items-start items-center lg:min-h-screen mt-6 lg:py-0 py-16 w-auto ">
+            <h2 className="lg:text-[40px] text-[32px] font-bold text-left text-gray-900">
               Sign in
             </h2>
             <span className="flex gap-1 items-center">
               {" "}
-              <p className="my-3 text-gray-700  lg:text-lg text-base">
+              <p className="my-3 text-neutral-700  lg:text-lg text-base">
                 New user?{" "}
                 <Link href="/auth/register" className="text-gray-900 underline">
                   Create an account here
@@ -49,39 +107,34 @@ export default function LoginComponent() {
               </p>
             </span>
 
-            <div className="flex justify-center items-center text-center flex-col">
+            <div className="flex lg:items-start items-start flex-col">
               <Typography
                 variant="h5"
-                className="text-gray-600 text-sm text-left w-full my-3"
+                className="text-neutral-600 text-sm text-left w-full my-5"
               >
                 Email address
-                <Input
+                <TextInput
                   variant="outlined"
-                  type="text"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
-                  className="border-[1.5px] !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-blue-600 mt-2 focus:!border-t-blue-600 focus:ring-blue-600/10"
-                  labelProps={{
-                    className: "hidden",
-                  }}
                 />
               </Typography>
               <Typography
                 variant="h5"
-                className="text-gray-600 text-sm text-left w-full my-3 relative"
+                className="text-neutral-600 text-sm text-left w-full my-5 relative"
               >
-                New Password
-                <Input
+                Password
+                <TextInput
                   variant="outlined"
+                  value={password}
                   type={showPassword ? "text" : "password"}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter  new password"
-                  className="border-[1.5px] !border-gray-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent placeholder:text-gray-500 focus:!border-blue-600 mt-2 focus:!border-t-blue-600 focus:ring-blue-600/10"
-                  labelProps={{
-                    className: "hidden",
-                  }}
+                  placeholder="Enter new password"
                 />
                 <span
-                  className="absolute right-3 top-[25px] cursor-pointer"
+                  className="absolute right-3 top-[30px] cursor-pointer"
                   aria-label="toggle password visibility "
                   onClick={() => setShowPassword(!showPassword)}
                 >
@@ -101,22 +154,26 @@ export default function LoginComponent() {
                 </span>
                 <p
                   className={
-                    message
+                    emailMessage
                       ? "flex items-center justify-start text-red-500 text-sm gap-2 my-2"
                       : "hidden my-2"
                   }
                 >
                   <Image src={error_outline} alt="loader" className="" />{" "}
-                  {message}
+                  {emailMessage}
                 </p>
               </Typography>
-              <div className="flex justify-start items-start my-3 text-left w-auto">
-                <Link href="/auth/resetpassword" className="text-left">
-                  Forgot password?
-                </Link>
+
+              <div className="mb-3 mt-6 flex items-start text-left ">
+                <Link href="/auth/resetpassword">Forgot password?</Link>
               </div>
 
-              <button className="onboardCreateButton">Sign in</button>
+              <Button
+                label={isPending ? "Signing in..." : "Sign in"}
+                onClick={handleLogin}
+                variant="primary"
+                isLoading={isLoading || isPending}
+              />
             </div>
           </div>
         </div>
