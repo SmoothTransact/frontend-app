@@ -1,19 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import RightOnboard from "@/app/components/auth/RightOnboard";
-import brandImg from "../../../public/brand_mobile.svg";
 import Link from "next/link";
-import open_eye from "../../../public/open_eye.svg";
 import { useState } from "react";
-import fi_eyeoff from "../../../public/fi_eyeoff.svg";
-import fi_check from "../../../public/fi_check.svg";
+import { useRouter } from "next/navigation";
 
-import error_outline from "../../../public/error_outline.svg";
 import { Typography } from "@material-tailwind/react";
 export { Typography };
-import TextInput from "@/app/components/Input";
-import Button from "@/app/components/Button";
+
 import { useLoginMutation } from "@/app/utils/rtk/apiSlice";
 import { useDispatch } from "react-redux";
 import {
@@ -21,16 +15,24 @@ import {
   dispatchUserRefreshToken,
   dispatchUserToken,
 } from "@/app/utils/redux/userSlice";
-import { useRouter } from "next/navigation";
+
+import RightOnboard from "@/app/components/auth/RightOnboard";
+import brandImg from "../../../public/brand_mobile.svg";
+import open_eye from "../../../public/open_eye.svg";
+import fi_eyeoff from "../../../public/fi_eyeoff.svg";
+import fi_check from "../../../public/fi_check.svg";
+import error_outline from "../../../public/error_outline.svg";
+import TextInput from "@/app/components/Input";
+import Button from "@/app/components/Button";
 
 export default function LoginComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [password, setPassword] = useState(false);
-  const [emailMessage, setEmailMessage] = useState("");
-  const [email, setEmail] = useState(""); // Initialize email state
-  const [err, setErr] = useState(""); //
-  const [notifyMessage, setNotifyMessage] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+
+  const [generalMessage, setGeneralMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -40,9 +42,17 @@ export default function LoginComponent() {
   const handleLogin = async () => {
     setIsPending(true);
 
+    if (!email || !password) {
+      setGeneralMessage("All inputs are required to signin");
+      setSuccessMessage("");
+      setIsPending(false);
+      return false;
+    }
+
     if (error) {
-      setErr(error.data.message);
-      setErr("");
+      setGeneralMessage(error.data.message);
+      setSuccessMessage("");
+      setIsPending(false);
     }
 
     const userData = {
@@ -52,11 +62,13 @@ export default function LoginComponent() {
     try {
       const result = await login(userData);
       if (await data) {
-        setNotifyMessage(data.message);
-        setErr("");
+        setSuccessMessage(data.message);
+        setGeneralMessage("");
+        setIsPending(false);
       }
 
-      setNotifyMessage(result.data.message);
+      setSuccessMessage(result.data.message);
+      setGeneralMessage("");
 
       dispatch(dispatchIsLogged());
       dispatch(dispatchUserToken(result.data.data.accessToken));
@@ -66,8 +78,8 @@ export default function LoginComponent() {
       setEmail("");
       setPassword("");
       router.push("/dashboard");
-    } catch (er) {
-      console.error(`${er.message}`);
+    } catch (error) {
+      console.error(error.message);
       setIsPending(false);
     } finally {
       setIsPending(false);
@@ -113,22 +125,14 @@ export default function LoginComponent() {
                 Email address
                 <TextInput
                   variant="outlined"
+                  required
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email address"
                 />
               </Typography>
-              <p
-                className={
-                  emailMessage
-                    ? "flex items-center justify-start text-red-500 text-sm gap-2 my-2"
-                    : "hidden my-2"
-                }
-              >
-                <Image src={error_outline} alt="loader" className="" />{" "}
-                {emailMessage}
-              </p>
+
               <Typography
                 variant="h5"
                 className="text-neutral-600 text-sm text-left w-full my-5 relative"
@@ -136,6 +140,7 @@ export default function LoginComponent() {
                 Password
                 <TextInput
                   variant="outlined"
+                  required
                   value={password}
                   type={showPassword ? "text" : "password"}
                   onChange={(e) => setPassword(e.target.value)}
@@ -167,22 +172,23 @@ export default function LoginComponent() {
               </div>
               <p
                 className={
-                  notifyMessage
-                    ? "flex items-start text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                  successMessage
+                    ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
                 <Image src={fi_check} alt="loader" className="" />
-                {notifyMessage}
+                {successMessage}
               </p>
               <p
                 className={
-                  err
+                  generalMessage
                     ? "flex items-center justify-start text-red-500 text-sm gap-2 my-2"
                     : "hidden my-2"
                 }
               >
-                <Image src={error_outline} alt="loader" className="" /> {err}
+                <Image src={error_outline} alt="loader" className="" />{" "}
+                {generalMessage}
               </p>
 
               <Button
