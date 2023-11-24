@@ -4,13 +4,35 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { AiFillHome } from "react-icons/ai";
 import Image from "next/image";
 import black_logo from "../../public/black_logo.svg";
 import { usePathname } from "next/navigation";
+import { useLogoutMutation } from "@/app/utils/rtk/apiSlice";
+import { useDispatch } from "react-redux";
+import { dispatchLogout } from "@/app/utils/redux/userSlice";
+import { useRouter } from "next/navigation";
 
 const Sidebar = () => {
+  const [isPending, setIsPending] = useState(false);
+  const dispatch = useDispatch();
+  const router = useRouter();
   const pathname = usePathname();
+
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    setIsPending(true);
+    try {
+      await logout();
+      dispatch(dispatchLogout());
+      router.push("auth/login");
+    } catch (er) {
+      console.error(`${er.message}`);
+      setIsPending(false);
+    } finally {
+      setIsPending(false);
+    }
+  };
   return (
     <aside className="  bg-neutral-50 text-gray-900 h-auto md:h-auto lg:h-screen xl:h-screen lg:mb-0 mb-6 px-6 py-12 sticky left-0 top-0 border-r-[1px] border-neutral-100">
       <section className="lg:block hidden">
@@ -491,13 +513,9 @@ const Sidebar = () => {
             </span>
             <span className="">Settings</span>
           </Link>
-          <Link
-            href="/logout"
-            className={
-              pathname == "/logout"
-                ? " py-3 px-4  bg-red-500 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
-                : " text-red-500  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-red-500 flex group items-center justify-start gap-2"
-            }
+          <button
+            onClick={handleLogout}
+            className="text-red-500  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-red-500 flex group items-center justify-start gap-2"
           >
             <span className="block group-hover:hidden">
               <svg
@@ -561,31 +579,10 @@ const Sidebar = () => {
                 />
               </svg>
             </span>
-            <span className="">Logout</span>
-          </Link>
+            <span className="">{isPending ? "Logging out" : "Logout"}</span>
+          </button>
         </nav>
       </section>
-      {/* Mobile view */}
-      <div className="flex justify-between items-center px-6 py-4 lg:hidden">
-        {/* Logo */}
-        <Link
-          href="/dashboard"
-          className=" font-bold hover:scale-105 hover:text-green-600 cursor-pointer"
-        >
-          <Image
-            src="/assets/logoo.png"
-            alt="Evaactivelife Gym Logo"
-            width={100}
-            height={100}
-            className="w-12 py-3 lg:w-12"
-          />
-        </Link>
-        {/* <TbMenu
-          onClick={() => setNavbar(!navbar)}
-          className="cursor-pointer text-4xl hover:text-green-500"
-        /> */}
-      </div>
-      {/* {navbar && <MobileView navbar={navbar} setNavbar={setNavbar} />} */}
     </aside>
   );
 };

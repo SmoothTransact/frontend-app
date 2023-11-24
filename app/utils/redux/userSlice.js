@@ -22,6 +22,8 @@ export const userSlice = createSlice({
 
     dispatchLogout: (state) => {
       state.isLogged = false;
+      state.accessToken = "";
+      state.refreshToken = null;
     },
   },
 });

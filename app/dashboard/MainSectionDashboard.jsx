@@ -6,9 +6,8 @@ import { useState } from "react";
 import emptyIcon from "../../public/dashboard/icon.svg";
 import mobiile_logo from "../../public/dashboard/mobile_logo.svg";
 import Image from "next/image";
-import Avatar from "@mui/material/Avatar";
 import MobileView from "../components/MobileView";
-// export { Avatar };
+
 import {
   Card,
   CardHeader,
@@ -32,16 +31,12 @@ function UserRow({ user, index }) {
     <tr key={user.id}>
       <td className={classes}>
         <div className="flex items-center gap-3">
-          <Avatar
-            alt={`Profile Picture of ${user?.fullName}`}
-            src={user?.fullName}
-            className="bg-[#EB7B7B] text-[#580E0E]"
-            sx={{ width: 50, height: 50 }}
-            // onError={(event) => {
-            //   event.target.src = "https://i.ibb.co/5M9xfLk/user.png";
-            //   event.onerror = null;
-            // }}
-          />
+          <span className="uppercase bg-[#EB7B7B] text-[#580E0E] w-12 h-12 flex items-center justify-center rounded-full font-semibold">
+            {user?.fullName
+              .split(" ")
+              .map((e) => e[0])
+              .join("")}
+          </span>
           <span>
             <Typography
               variant="small"
@@ -156,7 +151,6 @@ const MainSectionDashboard = () => {
     },
   ]);
 
-  console.log("url is : ", process.env.NEXT_PUBLIC_BASE_URL);
   return (
     <main className="bg-neutral-100 min-h-screen pb-8">
       <header className="  border-neutral-100 bg-neutral-50">
