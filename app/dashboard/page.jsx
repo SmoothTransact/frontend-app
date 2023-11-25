@@ -1,12 +1,10 @@
 import React from "react";
-import DashboardComponent from "./DashboardComponent";
+import MainDashboardComponent from "./MainDashboardComponent";
 
-const Dashboard = () => {
+export default function Dashboard() {
   return (
     <div>
-      <DashboardComponent />
+      <MainDashboardComponent />
     </div>
   );
-};
-
-export default Dashboard;
+}
