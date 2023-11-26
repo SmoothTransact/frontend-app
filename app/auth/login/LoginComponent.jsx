@@ -69,7 +69,10 @@ export default function LoginComponent() {
 
       setSuccessMessage(result.data.message);
       setGeneralMessage("");
-
+      localStorage.setItem(
+        "token",
+        JSON.stringify(result.data.data.accessToken)
+      );
       dispatch(dispatchIsLogged());
       dispatch(dispatchUserToken(result.data.data.accessToken));
       dispatch(dispatchUserRefreshToken(result.data.data.refreshToken));
