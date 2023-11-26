@@ -49,9 +49,9 @@ const MobileView = ({ navbar, setNavbar }) => {
             Dashboard
           </Link>
           <Link
-            href="/transactions"
+            href="/dashboard/transactions"
             className={
-              pathname == "/transactions"
+              pathname == "/dashboard/transactions"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50 group rounded-[9px] flex items-center justify-start gap-2"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
@@ -60,9 +60,9 @@ const MobileView = ({ navbar, setNavbar }) => {
             Transactions
           </Link>
           <Link
-            href="/notifications"
+            href="/dashboard/notifications"
             className={
-              pathname == "/Notifications"
+              pathname == "/dashboard/notifications"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
@@ -71,9 +71,9 @@ const MobileView = ({ navbar, setNavbar }) => {
             Notifications
           </Link>
           <Link
-            href="/accounts"
+            href="/dashboard/accounts"
             className={
-              pathname == "/accounts"
+              pathname == "/dashboard/accounts"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
@@ -82,9 +82,9 @@ const MobileView = ({ navbar, setNavbar }) => {
             Accounts
           </Link>
           <Link
-            href="/clients"
+            href="/dashboard/clients"
             className={
-              pathname == "/clients"
+              pathname == "/dashboard/clients"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex group items-center justify-start gap-2"
             }
@@ -93,9 +93,9 @@ const MobileView = ({ navbar, setNavbar }) => {
             Clients
           </Link>
           <Link
-            href="/invoices"
+            href="/dashboard/invoices"
             className={
-              pathname == "/invoices"
+              pathname == "/dashboard/invoices"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 group flex items-center justify-start gap-2"
             }
@@ -104,9 +104,9 @@ const MobileView = ({ navbar, setNavbar }) => {
             Invoices
           </Link>
           <Link
-            href="/settings"
+            href="/dashboard/settings"
             className={
-              pathname == "/settings"
+              pathname == "/dashboard/settings"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center justify-start gap-2"
             }

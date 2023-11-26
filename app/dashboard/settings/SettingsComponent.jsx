@@ -1,8 +1,6 @@
 "use client";
-import Image from "next/image";
+
 import React, { useState } from "react";
-import trans_empty_icon from "../../../public/dashboard/trans_empty_icon.svg";
-import Button from "@/app/components/Button";
 
 const SettingsComponent = () => {
   const [tabs, setTabs] = useState(1);

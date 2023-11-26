@@ -11,6 +11,7 @@ import { useLogoutMutation } from "@/app/utils/rtk/apiSlice";
 import { useDispatch } from "react-redux";
 import { dispatchLogout } from "@/app/utils/redux/userSlice";
 import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 const Sidebar = () => {
   const [isPending, setIsPending] = useState(false);
@@ -25,7 +26,8 @@ const Sidebar = () => {
     try {
       await logout();
       dispatch(dispatchLogout());
-      router.push("auth/login");
+      router.push("/auth/login");
+      redirect("/auth/login");
     } catch (er) {
       console.error(`${er.message}`);
       setIsPending(false);
