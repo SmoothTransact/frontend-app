@@ -1,0 +1,54 @@
+{
+  "dummyData": [
+    {
+      "id": 1,
+      "fullName": "Ahmed Olawale",
+      "email": "ayobamyahmed@gmail.com",
+      "phone": "09064576878",
+      "amountPaid": "₦34,000",
+      "createdAt": "13/11/2023",
+      "status": "paid",
+      "narration": "Paid today"
+    },
+    {
+      "id": 2,
+      "fullName": "Shola Kale",
+      "email": "shola@gmail.com",
+      "phone": "09064576878",
+      "amountPaid": "₦34,000",
+      "createdAt": "13/11/2023",
+      "status": "paid",
+      "narration": "Paid today"
+    },
+    {
+      "id": 3,
+      "fullName": "Bola Tito",
+      "email": "bolatitotiito@gmail.com",
+      "phone": "09064576878",
+      "amountPaid": "₦34,500",
+      "createdAt": "23/6/2023",
+      "status": "pending",
+      "narration": "Not Paid"
+    },
+    {
+      "id": 4,
+      "fullName": "Segun Biola",
+      "email": "segunbiola@gmail.com",
+      "phone": "09064576878",
+      "amountPaid": "₦34,500",
+      "createdAt": "23/6/2023",
+      "status": "pending",
+      "narration": "Not Paid"
+    },
+    {
+      "id": 5,
+      "fullName": "Femi Kanu",
+      "email": "femikanu@gmail.com",
+      "phone": "09064576878",
+      "amountPaid": "₦34,500",
+      "createdAt": "23/6/2023",
+      "status": "paid",
+      "narration": "Not Paid"
+    }
+  ]
+}
