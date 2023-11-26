@@ -1,10 +1,11 @@
 import React from "react";
-import MainDashboardComponent from "./MainDashboardComponent";
+import MainSectionDashboard from "./MainSectionDashboard";
 
 export default function Dashboard() {
   return (
     <div>
-      <MainDashboardComponent />
+      {" "}
+      <MainSectionDashboard />
     </div>
   );
 }

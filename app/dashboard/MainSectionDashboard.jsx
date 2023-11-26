@@ -2,11 +2,9 @@
 "use client";
 
 import React from "react";
-import { useState } from "react";
 import emptyIcon from "../../public/dashboard/icon.svg";
-import mobiile_logo from "../../public/dashboard/mobile_logo.svg";
 import Image from "next/image";
-import MobileView from "../components/MobileView";
+import dummyData from "./dummyData.json";
 
 import {
   Card,
@@ -102,132 +100,11 @@ function UserRow({ user, index }) {
 }
 
 const MainSectionDashboard = () => {
-  const [navbar, setNavbar] = useState(false);
-  const [data] = useState([
-    {
-      id: 1,
-      fullName: "Ahmed Olawale",
-      email: "ayobamyahmed@gmail.com",
-      amountPaid: "₦34,000",
-      createdAt: "13/11/2023",
-      status: "paid",
-      narration: "Paid today",
-    },
-    {
-      id: 2,
-      fullName: "Shola Kale",
-      email: "shola@gmail.com",
-      amountPaid: "₦34,000",
-      createdAt: "13/11/2023",
-      status: "paid",
-      narration: "Paid today",
-    },
-    {
-      id: 3,
-      fullName: "Bola Tito",
-      email: "bolatitotiito@gmail.com",
-      amountPaid: "₦34,500",
-      createdAt: "23/6/2023",
-      status: "pending",
-      narration: "Not Paid",
-    },
-    {
-      id: 4,
-      fullName: "Segun Biola",
-      email: "segunbiola@gmail.com",
-      amountPaid: "₦34,500",
-      createdAt: "23/6/2023",
-      status: "pending",
-      narration: "Not Paid",
-    },
-    {
-      id: 5,
-      fullName: "Femi Kanu",
-      email: "femikanu@gmail.com",
-      amountPaid: "₦34,500",
-      createdAt: "23/6/2023",
-      status: "paid",
-      narration: "Not Paid",
-    },
-  ]);
+  const data = dummyData.dummyData;
 
   return (
     <main className="bg-neutral-100 min-h-screen pb-8">
       <header className="  border-neutral-100 bg-neutral-50">
-        <nav className="xl:flex lg:flex pt-12 pb-5 md:hidden hidden px-6 border-b-[1px] gap-8 justify-between items-center">
-          <div className="w-1/4">
-            <p className="text-2xl text-neutral-900 font-semibold">Dashboard</p>
-          </div>
-          <div className="relative w-3/4">
-            <input
-              type="search"
-              placeholder="Search"
-              className="rounded-full w-full border-[1.5px] outline-none !border-neutral-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent text-base placeholder:text-neutral-600 focus:!border-blue-600 mt-2 focus:!border-t-blue-600 focus:bg-white focus:ring-blue-600/10  px-12 py-[14px] h-[44px]"
-            />
-            <span className="absolute left-4 top-6">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.16667 15.8333C12.8486 15.8333 15.8333 12.8486 15.8333 9.16667C15.8333 5.48477 12.8486 2.5 9.16667 2.5C5.48477 2.5 2.5 5.48477 2.5 9.16667C2.5 12.8486 5.48477 15.8333 9.16667 15.8333Z"
-                  stroke="#72768F"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M17.5 17.5L13.875 13.875"
-                  stroke="#72768F"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </span>
-          </div>
-        </nav>
-        <nav className="lg:hidden xl:hidden flex justify-between items-ceneter px-6 py-7 bg-white border-b-2 border-neutral-100">
-          <div>
-            <Image src={mobiile_logo} alt="Mobile Loogo" />
-          </div>
-          <div className="text-lg font-bold">Dashboard</div>
-          <button onClick={() => setNavbar(!navbar)}>
-            <svg
-              width="32"
-              height="33"
-              viewBox="0 0 32 33"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M4 24.6953H28"
-                stroke="#0F0F0F"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M4 16.6953H28"
-                stroke="#0F0F0F"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M4 8.69531H28"
-                stroke="#0F0F0F"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-          {navbar && <MobileView navbar={navbar} setNavbar={setNavbar} />}
-        </nav>
         <span className="flex justify-between items-center px-6 py-3 lg:bg-neutral-50 bg-white border-neutral-100 border-b-[1px]">
           <p className="text-lg font-bold">Overview</p>
 

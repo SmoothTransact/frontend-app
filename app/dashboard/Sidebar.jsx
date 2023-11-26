@@ -51,53 +51,93 @@ const Sidebar = () => {
             href="/dashboard"
             className={
               pathname == "/dashboard"
-                ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2"
-                : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center justify-start gap-2"
+                ? " py-3 px-4  bg-neutral-900 text-neutral-50 group rounded-[9px] flex items-center justify-start gap-2"
+                : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
           >
-            {" "}
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M15.75 10.5H10.5V15.75H15.75V10.5Z"
-                stroke="#F4F4F7"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M7.5 10.5H2.25V15.75H7.5V10.5Z"
-                stroke="#F4F4F7"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M15.75 2.25H10.5V7.5H15.75V2.25Z"
-                stroke="#F4F4F7"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M7.5 2.25H2.25V7.5H7.5V2.25Z"
-                stroke="#F4F4F7"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <span className="block group-hover:hidden ">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15.75 10.5H10.5V15.75H15.75V10.5Z"
+                  stroke="#56586B"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M7.5 10.5H2.25V15.75H7.5V10.5Z"
+                  stroke="#56586B"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M15.75 2.25H10.5V7.5H15.75V2.25Z"
+                  stroke="#56586B"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M7.5 2.25H2.25V7.5H7.5V2.25Z"
+                  stroke="#56586B"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span className="hidden group-hover:block">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15.75 10.5H10.5V15.75H15.75V10.5Z"
+                  stroke="#F4F4F7"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M7.5 10.5H2.25V15.75H7.5V10.5Z"
+                  stroke="#F4F4F7"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M15.75 2.25H10.5V7.5H15.75V2.25Z"
+                  stroke="#F4F4F7"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M7.5 2.25H2.25V7.5H7.5V2.25Z"
+                  stroke="#F4F4F7"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+
             <span className="">Dashboard</span>
           </Link>
           <Link
-            href="/transactions"
+            href="/dashboard/transactions"
             className={
-              pathname == "/transactions"
+              pathname == "/dashboard/transactions"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50 group rounded-[9px] flex items-center justify-start gap-2"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
@@ -168,9 +208,9 @@ const Sidebar = () => {
             <span className="">Transactions</span>
           </Link>
           <Link
-            href="/Notifications"
+            href="/dashboard/notifications"
             className={
-              pathname == "/notifications"
+              pathname == "/dashboard/notifications"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
@@ -227,9 +267,9 @@ const Sidebar = () => {
             <span className="">Notifications</span>
           </Link>
           <Link
-            href="/accounts"
+            href="/dashboard/accounts"
             className={
-              pathname == "/accounts"
+              pathname == "/dashboard/accounts"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
@@ -313,9 +353,9 @@ const Sidebar = () => {
             <span className="">Accounts</span>
           </Link>
           <Link
-            href="/clients"
+            href="/dashboard/clients"
             className={
-              pathname == "/clients"
+              pathname == "/dashboard/clients"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex group items-center justify-start gap-2"
             }
@@ -371,9 +411,9 @@ const Sidebar = () => {
             <span className="">Clients</span>
           </Link>
           <Link
-            href="/invoices"
+            href="/dashboard/invoices"
             className={
-              pathname == "/invoices"
+              pathname == "/dashboard/invoices"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 group flex items-center justify-start gap-2"
             }
@@ -429,9 +469,9 @@ const Sidebar = () => {
             <span className="">Invoices</span>
           </Link>
           <Link
-            href="/settings"
+            href="/dashboard/settings"
             className={
-              pathname == "/settings"
+              pathname == "/dashboard/settings"
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center justify-start gap-2"
             }
