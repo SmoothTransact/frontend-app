@@ -117,7 +117,7 @@ export default function LoginComponent() {
               {" "}
               <p className="my-3 text-neutral-700  lg:text-lg text-base">
                 New user?{" "}
-                <Link href="/auth/register" className="text-gray-900 underline">
+                <Link href="/" className="text-gray-900 underline">
                   Create an account here
                 </Link>{" "}
               </p>
