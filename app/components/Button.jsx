@@ -12,7 +12,7 @@ const Button = ({ label, onClick, variant, isLoading = false }) => {
         : "onboardCreateButton";
     } else if (variant === "secondary") {
       // Add secondary button styles here
-      return "lg:w-[440px] lg:h-[54px] h-[52px] w-[294px] my-2 bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base";
+      return "lg:min-w-[470px] lg:h-[54px] h-[52px] w-[294px] my-2 bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base";
     }
     return "";
   };

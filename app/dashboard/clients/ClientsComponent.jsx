@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import React, { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { Dialog, DialogHeader, DialogBody } from "@material-tailwind/react";
@@ -10,12 +11,9 @@ import {
   MenuHandler,
   MenuList,
   MenuItem,
-  Button,
 } from "@material-tailwind/react";
 
-// import { useGetallclientsMutation } from "@/app/utils/rtk/apiSlice";
 import trans_empty_icon from "../../../public/dashboard/trans_empty_icon.svg";
-import fi_rotate from "../../../public/dashboard/fi_rotate.svg";
 import fi_loader from "../../../public/fi_loader.svg";
 import fi_check from "../../../public/fi_check.svg";
 import error_outline from "../../../public/error_outline.svg";
@@ -28,6 +26,7 @@ function ClientsComponent() {
   const [successMessage, setSuccessMessage] = useState("");
   const [generalMessage, setGeneralMessage] = useState(null);
   const handleOpen = () => setOpen(!open);
+  const router = useRouter();
 
   // Users
   const [fullName, setFullName] = useState("");
@@ -90,7 +89,11 @@ function ClientsComponent() {
         setOpen(false);
       }, 2000);
     } catch (error) {
-      setGeneralMessage(`${error.message}`);
+      if (error.message === "Request failed with status code 401") {
+        setGeneralMessage("Unauthorized! User not logged in");
+        localStorage.clear();
+        return router.push("/auth/login");
+      }
       setSuccessMessage("");
       setIsLoading(false);
     }
