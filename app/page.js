@@ -25,35 +25,87 @@ export default function Home() {
             <h2 className="lg:text-5xl text-4xl font-bold text-center text-gray-900">
               Welcome to Smooth Transact
             </h2>
-            <p className="my-3 text-gray-700  lg:text-xl text-base">
-              Track payment transactions, receive real-time updates, manage
-              client profiles, payments and unpaid invoices.
+            <p className="my-3 text-gray-700  lg:text-lg gtext-base font-semibold">
+              What type of account are you creating?
             </p>
 
-            <div className="flex justify-center items-center text-center flex-col">
-              <Link href="/auth/register" className="onboardCreateButton">
-                Create account
+            <div className="flex justify-center items-center text-center flex-col gap-4">
+              <Link
+                href="/auth/register"
+                className=" p-4 border-2 border-neutral-900 flex flex-start items-center gap-3 rounded-[9px] w-full hover:font-bold"
+              >
+                <span>
+                  <svg
+                    width="24"
+                    height="25"
+                    viewBox="0 0 24 25"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M20 21.5V19.5C20 18.4391 19.5786 17.4217 18.8284 16.6716C18.0783 15.9214 17.0609 15.5 16 15.5H8C6.93913 15.5 5.92172 15.9214 5.17157 16.6716C4.42143 17.4217 4 18.4391 4 19.5V21.5"
+                      stroke="#1D1D24"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M12 11.5C14.2091 11.5 16 9.70914 16 7.5C16 5.29086 14.2091 3.5 12 3.5C9.79086 3.5 8 5.29086 8 7.5C8 9.70914 9.79086 11.5 12 11.5Z"
+                      stroke="#1D1D24"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+                <span className="text-left">
+                  <p className="text-lg text-neutral-900 my-1">Personal</p>
+                  <p className="text-sm text-neutral-700 my-1">
+                    For individual contractors freelancers,etc.
+                  </p>
+                </span>
               </Link>
-              <Link href="/auth/login" className="onboardSignInButton">
-                Sign in
+              <Link
+                href="/auth/register"
+                className=" p-4 border-2 border-neutral-300 flex flex-start items-center gap-3 rounded-[9px] w-full hover:font-bold hover:border-neutral-900"
+              >
+                <span>
+                  <svg
+                    width="24"
+                    height="25"
+                    viewBox="0 0 24 25"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M20 7.5H4C2.89543 7.5 2 8.39543 2 9.5V19.5C2 20.6046 2.89543 21.5 4 21.5H20C21.1046 21.5 22 20.6046 22 19.5V9.5C22 8.39543 21.1046 7.5 20 7.5Z"
+                      stroke="#1D1D24"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <path
+                      d="M16 21.5V5.5C16 4.96957 15.7893 4.46086 15.4142 4.08579C15.0391 3.71071 14.5304 3.5 14 3.5H10C9.46957 3.5 8.96086 3.71071 8.58579 4.08579C8.21071 4.46086 8 4.96957 8 5.5V21.5"
+                      stroke="#1D1D24"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+                <span className="text-left">
+                  <p className="text-lg text-neutral-900 my-1">Business</p>
+                  <p className="text-sm text-neutral-700 my-1">
+                    For registered businesses and corporations.
+                  </p>
+                </span>
               </Link>
-              <p className="lg:my-8 my-3 text-base uppercase">OR</p>
-              <span className="flex items-center gap-1">
-                <svg
-                  width="19"
-                  height="19"
-                  viewBox="0 0 20 19"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M16.1933 11.4866L16.2896 10.9049H15.7H10.6957V8.63932H18.9225C18.9744 9.01578 19 9.37679 19 9.72266C19 11.4386 18.6335 12.9524 17.9121 14.2768C17.192 15.5986 16.1683 16.6296 14.8314 17.3759C13.4969 18.1208 11.9564 18.5 10.1957 18.5C8.93906 18.5 7.7464 18.2631 6.61355 17.7902C5.47303 17.3141 4.49641 16.6741 3.67784 15.872C2.85935 15.0701 2.20717 14.1142 1.72231 12.9992C1.24087 11.892 1 10.7271 1 9.5C1 8.27291 1.24087 7.10801 1.72231 6.00081C2.20717 4.88577 2.85935 3.92994 3.67784 3.12797C4.49641 2.32592 5.47303 1.6859 6.61355 1.20978C7.7464 0.736865 8.93906 0.5 10.1957 0.5C12.4119 0.5 14.3236 1.16688 15.952 2.50161L14.0465 4.29723C12.9758 3.42992 11.6837 3.00065 10.1957 3.00065C9.02336 3.00065 7.93272 3.29121 6.93333 3.87248C5.9373 4.4518 5.14515 5.24136 4.56293 6.23522C3.97837 7.23308 3.68638 8.32462 3.68638 9.5C3.68638 10.6754 3.97837 11.7669 4.56293 12.7648C5.14515 13.7586 5.9373 14.5482 6.93333 15.1275C7.93272 15.7088 9.02336 15.9993 10.1957 15.9993C10.9731 15.9993 11.6988 15.8942 12.3689 15.6784C13.0209 15.4684 13.5795 15.1988 14.0307 14.8602C14.4608 14.5374 14.838 14.1682 15.1607 13.7526C15.4748 13.3481 15.718 12.9504 15.8785 12.5598C16.0291 12.1929 16.1357 11.8349 16.1933 11.4866Z"
-                    fill="black"
-                    stroke="#0F0F0F"
-                  />
-                </svg>
-                <p className="text-lg text-gray-900">Continue with Google</p>
-              </span>
+
+              <Link href="/auth/login" className="flex items-center gap-1">
+                <p className="text-lg text-gray-900 underline">
+                  I already have an account
+                </p>
+              </Link>
             </div>
           </div>
         </div>
