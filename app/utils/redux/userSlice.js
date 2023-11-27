@@ -7,11 +7,15 @@ export const userSlice = createSlice({
   initialState: {
     isLogged: false,
     accessToken: "",
+    user: {},
     refreshToken: null,
   },
   reducers: {
     dispatchIsLogged: (state) => {
       state.isLogged = true;
+    },
+    dispatchUser: (state, action) => {
+      state.user = action.payload;
     },
     dispatchUserRefreshToken: (state, action) => {
       state.refreshToken = action.payload;
@@ -32,7 +36,7 @@ export const {
   dispatchIsLogged,
   dispatchUserToken,
   dispatchUserRefreshToken,
-  // dispatchUser,
+  dispatchUser,
   // dispatchUserId,
   dispatchLogout,
 } = userSlice.actions;

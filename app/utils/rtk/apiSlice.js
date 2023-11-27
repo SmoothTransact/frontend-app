@@ -15,9 +15,16 @@ export const api = createApi({
         body: credentials,
       }),
     }),
-    signup: builder.mutation({
+    signupPersonal: builder.mutation({
       query: (userData) => ({
-        url: "auth/signup",
+        url: "auth/signup/personal",
+        method: "POST",
+        body: userData,
+      }),
+    }),
+    signupBusiness: builder.mutation({
+      query: (userData) => ({
+        url: "auth/signup/business",
         method: "POST",
         body: userData,
       }),
@@ -48,8 +55,10 @@ export const api = createApi({
 
 export const {
   useLoginMutation,
-  useSignupMutation,
+  // useSignupMutation,
   useLogoutMutation,
   useForgotpasswordMutation,
   useResetpasswordMutation,
+  useSignupBusinessMutation,
+  useSignupPersonalMutation,
 } = api;

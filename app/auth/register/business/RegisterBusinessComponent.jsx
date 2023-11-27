@@ -6,19 +6,19 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 // Custom Component Import
-import { useSignupMutation } from "../../utils/rtk/apiSlice";
-import brandImg from "../../../public/brand_mobile.svg";
-import open_eye from "../../../public/open_eye.svg";
-import fi_eyeoff from "../../../public/fi_eyeoff.svg";
-import error_outline from "../../../public/error_outline.svg";
-import fi_check from "../../../public/fi_check.svg";
+import RightOnboard from "../../../components/auth/RightOnboard";
+import { useSignupBusinessMutation } from "../../../utils/rtk/apiSlice";
+import brandImg from "../../../../public/brand_mobile.svg";
+import open_eye from "../../../../public/open_eye.svg";
+import fi_eyeoff from "../../../../public/fi_eyeoff.svg";
+import error_outline from "../../../../public/error_outline.svg";
+import fi_check from "../../../../public/fi_check.svg";
 import { Typography } from "@material-tailwind/react";
 export { Typography };
 import TextInput from "@/app/components/Input";
 import Button from "@/app/components/Button";
-import RightOnboard from "../../components/auth/RightOnboard";
 
-export default function RegisterComponent() {
+export default function RegisterBusinessComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -36,7 +36,8 @@ export default function RegisterComponent() {
 
   const router = useRouter();
 
-  const [signup, { isLoading, error, data }] = useSignupMutation();
+  const [signupBusiness, { isLoading, error, data }] =
+    useSignupBusinessMutation();
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -97,7 +98,7 @@ export default function RegisterComponent() {
     }
 
     try {
-      const result = await signup(userData);
+      const result = await signupBusiness(userData);
       if (await data) {
         setSuccessMessage(data.message);
         setEmailMessage("");
@@ -137,9 +138,11 @@ export default function RegisterComponent() {
             />
           </div>
           <div className="px-6 flex justify-center flex-col lg:items-start items-center lg:min-h-screen mt-6 lg:py-0 py-16 w-auto ">
+            <p className="underline">Business User</p>
             <h2 className="lg:text-[40px] text-[32px] font-bold text-center text-gray-900">
               Create an account
             </h2>
+
             <span className="flex gap-1 items-center">
               {" "}
               <p className="my-3 text-gray-700  lg:text-lg text-base">
@@ -158,7 +161,7 @@ export default function RegisterComponent() {
                 variant="h5"
                 className="text-neutral-600 text-sm text-left w-full my-5"
               >
-                Full name
+                Business name
                 <TextInput
                   variant="outlined"
                   required
@@ -182,7 +185,7 @@ export default function RegisterComponent() {
                 variant="h5"
                 className="text-neutral-600 text-sm text-left w-full my-5"
               >
-                Email address
+                Business email address
                 <TextInput
                   variant="outlined"
                   required

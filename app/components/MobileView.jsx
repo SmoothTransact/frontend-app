@@ -25,6 +25,7 @@ const MobileView = ({ navbar, setNavbar }) => {
     try {
       await logout();
       dispatch(dispatchLogout());
+      localStorage.clear();
       router.push("/auth/login");
       redirect("/auth/login");
     } catch (er) {

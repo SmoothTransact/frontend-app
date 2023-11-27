@@ -12,21 +12,27 @@ import {
   MenuList,
   MenuItem,
 } from "@material-tailwind/react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 import trans_empty_icon from "../../../public/dashboard/trans_empty_icon.svg";
 import fi_loader from "../../../public/fi_loader.svg";
 import fi_check from "../../../public/fi_check.svg";
+import delete_note from "../../../public/dashboard/delete_note.svg";
 import error_outline from "../../../public/error_outline.svg";
 
-function ClientsComponent() {
+function ClientsComponent({ user }) {
   const [getClients, setGetClients] = useState([]);
   const [isPending, setIsPending] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = React.useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [generalMessage, setGeneralMessage] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
   const handleOpen = () => setOpen(!open);
   const router = useRouter();
+
+  const MySwal = withReactContent(Swal);
 
   // Users
   const [fullName, setFullName] = useState("");
@@ -104,15 +110,52 @@ function ClientsComponent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // const handleDeleteClient = async (id) => {
+  //   try {
+  //     await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}clients/${id}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+
   const handleDeleteClient = async (id) => {
-    try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}clients/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      handleGetAllClients();
-    } catch (error) {}
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await axios.delete(
+            `${process.env.NEXT_PUBLIC_BASE_URL}clients/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          Swal.fire({
+            title: "Deleted!",
+            text: ` Deleted successfully.`,
+            icon: "success",
+          });
+
+          handleGetAllClients(); // Refresh the client list after deletion
+        } catch (error) {
+          // Handle errors
+          console.error(error);
+        }
+      }
+    });
   };
 
   const Empty = (
@@ -129,8 +172,8 @@ function ClientsComponent() {
     </section>
   );
   return (
-    <main>
-      <header className="  border-neutral-100 bg-neutral-50">
+    <main className="">
+      <header className="  border-neutral-100 bg-neutral-50 z-50">
         <span className="flex justify-between items-center px-6 py-3 lg:bg-neutral-50 bg-white border-neutral-100 border-b-[1px]">
           <p className="text-lg font-bold">Overview</p>
 
@@ -239,7 +282,8 @@ function ClientsComponent() {
                       Edit
                     </MenuItem>
                     <MenuItem
-                      className="text-[#B11C1C] flex items-center hover:text-red-500 gap-1 font-medium "
+                      className="text-[#B11C1C] flex items-center gap-1 font-medium"
+                      // onClick={() => handleDeleteClient(user.id)}
                       onClick={() => handleDeleteClient(user.id)}
                     >
                       <svg
