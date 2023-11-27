@@ -31,7 +31,7 @@ export default function Home() {
 
             <div className="flex justify-center items-center text-center flex-col gap-4">
               <Link
-                href="/auth/register"
+                href="/auth/register/personal"
                 className=" p-4 border-2 border-neutral-900 flex flex-start items-center gap-3 rounded-[9px] w-full hover:font-bold"
               >
                 <span>
@@ -66,7 +66,7 @@ export default function Home() {
                 </span>
               </Link>
               <Link
-                href="/auth/register"
+                href="/auth/register/business"
                 className=" p-4 border-2 border-neutral-300 flex flex-start items-center gap-3 rounded-[9px] w-full hover:font-bold hover:border-neutral-900"
               >
                 <span>

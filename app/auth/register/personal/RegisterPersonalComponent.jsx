@@ -1,89 +1,118 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+// Custom Component Import
+import { useSignupPersonalMutation } from "../../../utils/rtk/apiSlice";
+import brandImg from "../../../../public/brand_mobile.svg";
+import open_eye from "../../../../public/open_eye.svg";
+import fi_eyeoff from "../../../../public/fi_eyeoff.svg";
+import error_outline from "../../../../public/error_outline.svg";
+import fi_check from "../../../../public/fi_check.svg";
 import { Typography } from "@material-tailwind/react";
 export { Typography };
-
-import { useLoginMutation } from "@/app/utils/rtk/apiSlice";
-import { useDispatch } from "react-redux";
-import {
-  dispatchIsLogged,
-  dispatchUser,
-  dispatchUserRefreshToken,
-  dispatchUserToken,
-} from "@/app/utils/redux/userSlice";
-
-import RightOnboard from "@/app/components/auth/RightOnboard";
-import brandImg from "../../../public/brand_mobile.svg";
-import open_eye from "../../../public/open_eye.svg";
-import fi_eyeoff from "../../../public/fi_eyeoff.svg";
-import fi_check from "../../../public/fi_check.svg";
-import error_outline from "../../../public/error_outline.svg";
 import TextInput from "@/app/components/Input";
 import Button from "@/app/components/Button";
+import RightOnboard from "../../../components/auth/RightOnboard";
 
-export default function LoginComponent() {
+export default function RegisterPersonalComponent() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isPending, setIsPending] = useState(false);
-  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
+  // Loading State
+  const [isPending, setIsPending] = useState(false);
+
+  // Messages
+  const [emailMessage, setEmailMessage] = useState("");
   const [generalMessage, setGeneralMessage] = useState("");
+  const [fullNameMessage, setFullNameMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
 
-  const dispatch = useDispatch();
   const router = useRouter();
 
-  const [login, { isLoading, error, data }] = useLoginMutation();
+  const [signupPersonal, { isLoading, error, data }] =
+    useSignupPersonalMutation();
 
-  const handleLogin = async () => {
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
     setIsPending(true);
 
-    if (!email || !password) {
-      setGeneralMessage("All inputs are required to signin");
+    const userData = {
+      fullName,
+      email,
+      password,
+    };
+
+    if (!fullName || !email || !password) {
+      setGeneralMessage("All inputs are required to signup");
+      setEmailMessage("");
       setSuccessMessage("");
+      setPasswordMessage("");
+      setFullNameMessage("");
+      setIsPending(false);
+      return false;
+    } else if (fullName.length < 3) {
+      setFullNameMessage("Full Name must be more than 3 characters");
+      setEmailMessage("");
+      setSuccessMessage("");
+      setPasswordMessage("");
+      setGeneralMessage("");
+      setIsPending(false);
+      return false;
+    } else if (password.length < 6) {
+      setPasswordMessage("Password must be more than 6 characters");
+      setFullNameMessage("");
+      setEmailMessage("");
+      setSuccessMessage("");
+      setGeneralMessage("");
       setIsPending(false);
       return false;
     }
 
-    if (error) {
+    if (
+      error &&
+      error.data.message.includes("User already exists") &&
+      fullName.length > 3 &&
+      password.length > 6
+    ) {
+      setEmailMessage(error.data.message);
+      setPasswordMessage("");
+      setSuccessMessage("");
+      setFullNameMessage("");
+      setGeneralMessage("");
+      setIsPending(false);
+    }
+    if (error && error.data.message.includes("Internal server error")) {
       setGeneralMessage(error.data.message);
+      setEmailMessage("");
+      setFullNameMessage("");
+      setPasswordMessage("");
       setSuccessMessage("");
       setIsPending(false);
     }
 
-    const userData = {
-      email,
-      password,
-    };
     try {
-      const result = await login(userData);
+      const result = await signupPersonal(userData);
       if (await data) {
         setSuccessMessage(data.message);
+        setEmailMessage("");
         setGeneralMessage("");
         setIsPending(false);
       }
 
       setSuccessMessage(result.data.message);
-      setGeneralMessage("");
-      localStorage.setItem(
-        "token",
-        JSON.stringify(result.data.data.accessToken)
-      );
-      console.log("User data", result.data);
-      dispatch(dispatchIsLogged());
-      dispatch(dispatchUser(result.data.data.user));
-      dispatch(dispatchUserToken(result.data.data.accessToken));
-      dispatch(dispatchUserRefreshToken(result.data.data.refreshToken));
 
       setIsPending(false);
+      setFullName("");
       setEmail("");
       setPassword("");
-      router.push("/dashboard");
+      router.push("/auth/login");
     } catch (error) {
       console.error(error.message);
       setIsPending(false);
@@ -91,12 +120,11 @@ export default function LoginComponent() {
       setIsPending(false);
     }
   };
-
   return (
     <main className="onboardScreen">
       <section className="onboardScreenLeft">
         <div className="lg:max-w-[440px] mb-4 mt-0">
-          <div className="lg:hidden md:hidden px-0 top-0 ">
+          <div className="lg:hidden md:hidden  px-0 top-0 ">
             <Image
               src={brandImg}
               alt="Brand Image"
@@ -110,20 +138,49 @@ export default function LoginComponent() {
             />
           </div>
           <div className="px-6 flex justify-center flex-col lg:items-start items-center lg:min-h-screen mt-6 lg:py-0 py-16 w-auto ">
-            <h2 className="lg:text-[40px] text-[32px] font-bold text-left text-gray-900">
-              Sign in
+            <p className="underline">Personal User</p>
+            <h2 className="lg:text-[40px] text-[32px] font-bold text-center text-gray-900">
+              Create an account
             </h2>
+
             <span className="flex gap-1 items-center">
               {" "}
-              <p className="my-3 text-neutral-700  lg:text-lg text-base">
-                New user?{" "}
-                <Link href="/auth/register" className="text-gray-900 underline">
-                  Create an account here
+              <p className="my-3 text-gray-700  lg:text-lg text-base">
+                Already have an account?{" "}
+                <Link href="/auth/login" className="text-gray-900 underline">
+                  Sign in here
                 </Link>{" "}
               </p>
             </span>
 
-            <div className="flex lg:items-start items-start flex-col">
+            <form
+              className="flex lg:items-start items-start flex-col"
+              onSubmit={handleRegisterSubmit}
+            >
+              <Typography
+                variant="h5"
+                className="text-neutral-600 text-sm text-left w-full my-5"
+              >
+                Full name
+                <TextInput
+                  variant="outlined"
+                  required
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter your first and last name"
+                />
+              </Typography>
+              <p
+                className={
+                  fullNameMessage
+                    ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={error_outline} alt="loader" className="" />
+                {fullNameMessage}
+              </p>
               <Typography
                 variant="h5"
                 className="text-neutral-600 text-sm text-left w-full my-5"
@@ -139,18 +196,28 @@ export default function LoginComponent() {
                 />
               </Typography>
 
+              <p
+                className={
+                  emailMessage
+                    ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                    : "hidden my-2"
+                }
+              >
+                <Image src={error_outline} alt="loader" className="" />{" "}
+                {emailMessage}
+              </p>
               <Typography
                 variant="h5"
                 className="text-neutral-600 text-sm text-left w-full my-5 relative"
               >
                 Password
                 <TextInput
-                  variant="outlined"
                   required
+                  variant="outlined"
                   value={password}
                   type={showPassword ? "text" : "password"}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter new password"
+                  placeholder="Enter your preferred password"
                 />
                 <span
                   className="absolute right-3 top-[30px] cursor-pointer"
@@ -172,10 +239,18 @@ export default function LoginComponent() {
                   )}
                 </span>
               </Typography>
-
-              <div className="mb-3 mt-6 flex items-start text-left ">
-                <Link href="/auth/forgotpassword">Forgot password?</Link>
-              </div>
+              <span className="mb-2">
+                <p
+                  className={
+                    passwordMessage
+                      ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                      : "hidden my-2"
+                  }
+                >
+                  <Image src={error_outline} alt="loader" className="" />
+                  {passwordMessage}
+                </p>
+              </span>
               <p
                 className={
                   successMessage
@@ -189,17 +264,16 @@ export default function LoginComponent() {
               <p
                 className={
                   generalMessage
-                    ? "flex items-center justify-start text-red-500 text-sm gap-2 my-2"
+                    ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
                     : "hidden my-2"
                 }
               >
                 <Image src={error_outline} alt="loader" className="" />{" "}
                 {generalMessage}
               </p>
-
               <Button
-                label={isPending ? "Signing in..." : "Sign in"}
-                onClick={handleLogin}
+                label={isPending ? "Creating account..." : "Create account"}
+                onClick={handleRegisterSubmit}
                 variant="primary"
                 isLoading={isLoading || isPending}
               />
@@ -220,12 +294,10 @@ export default function LoginComponent() {
                       stroke="#0F0F0F"
                     />
                   </svg>
-                  <p className="text-lg text-gray-900">
-                    I already have an account
-                  </p>
+                  <p className="text-lg text-gray-900">Continue with Google</p>
                 </span>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </section>

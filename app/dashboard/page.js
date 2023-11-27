@@ -5,14 +5,15 @@ import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
-  const accessToken = useSelector((state) => state.user.accessToken);
+  const token = useSelector((state) => state.user.accessToken);
 
   const router = useRouter();
   useEffect(() => {
-    if (!accessToken) {
+    if (!token) {
       router.push("/auth/login");
+      localStorage.clear();
     }
-  }, [accessToken, router]);
+  }, [token, router]);
 
   return (
     <div>
