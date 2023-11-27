@@ -1,16 +1,11 @@
 // api.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { UseSelector } from "react-redux";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-// const accessToken = localStorage.getItem("token");
-
-// console.log("access Token query", accessToken);
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
-    // headers: { Authorization: `Bearer ${accessToken}` },
   }),
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -48,13 +43,6 @@ export const api = createApi({
         body: userData,
       }),
     }),
-    getallclients: builder.mutation({
-      query: () => ({
-        url: "clients",
-        method: "GET",
-        // headers: { Authorization: `Bearer ${accessToken}` },
-      }),
-    }),
   }),
 });
 
@@ -64,5 +52,4 @@ export const {
   useLogoutMutation,
   useForgotpasswordMutation,
   useResetpasswordMutation,
-  useGetallclientsMutation,
 } = api;

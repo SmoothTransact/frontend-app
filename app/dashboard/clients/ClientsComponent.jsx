@@ -2,18 +2,23 @@
 
 import Image from "next/image";
 import React, { useState, useEffect, use } from "react";
-import trans_empty_icon from "../../../public/dashboard/trans_empty_icon.svg";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import { Dialog, DialogHeader, DialogBody } from "@material-tailwind/react";
+import {
+  Menu,
+  MenuHandler,
+  MenuList,
+  MenuItem,
+  Button,
+} from "@material-tailwind/react";
+
 // import { useGetallclientsMutation } from "@/app/utils/rtk/apiSlice";
+import trans_empty_icon from "../../../public/dashboard/trans_empty_icon.svg";
 import fi_rotate from "../../../public/dashboard/fi_rotate.svg";
 import fi_loader from "../../../public/fi_loader.svg";
 import fi_check from "../../../public/fi_check.svg";
 import error_outline from "../../../public/error_outline.svg";
-
-import axios from "axios";
-import TextInput from "@/app/components/Input";
-import { Dialog, DialogHeader, DialogBody } from "@material-tailwind/react";
-
-import { useSelector } from "react-redux";
 
 function ClientsComponent() {
   const [getClients, setGetClients] = useState([]);
@@ -30,8 +35,6 @@ function ClientsComponent() {
   const [phone, setPhone] = useState("");
 
   const token = useSelector((state) => state.user.accessToken);
-
-  // console.log("token is :", token);
 
   const handleGetAllClients = async () => {
     setIsPending(true);
@@ -53,8 +56,16 @@ function ClientsComponent() {
   };
 
   // Create new client
-  const handleCreateClient = async () => {
+  const handleCreateClient = async (e) => {
+    e.preventDefault();
     setIsLoading(true);
+
+    if (!email || !phone || !fullName) {
+      setGeneralMessage("All inputs are required to add a client");
+      setSuccessMessage("");
+      setIsLoading(false);
+      return false;
+    }
 
     const userData = {
       fullName,
@@ -63,19 +74,14 @@ function ClientsComponent() {
     };
 
     try {
-      const result = await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}clients`,
-        userData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setGetClients(result.data);
+      await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}clients`, userData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      handleGetAllClients();
       setSuccessMessage("Client added successfully");
       setGeneralMessage("");
-
       setFullName("");
       setEmail("");
       setPhone("");
@@ -95,6 +101,17 @@ function ClientsComponent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleDeleteClient = async (id) => {
+    try {
+      await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}clients/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      handleGetAllClients();
+    } catch (error) {}
+  };
+
   const Empty = (
     <section className="min-h-[70vh] flex justify-center items-center">
       <div className="flex justify-center flex-col gap-2 items-center py-12 px-6 max-w-[480px]">
@@ -108,14 +125,16 @@ function ClientsComponent() {
       </div>
     </section>
   );
-
   return (
     <main>
       <header className="  border-neutral-100 bg-neutral-50">
         <span className="flex justify-between items-center px-6 py-3 lg:bg-neutral-50 bg-white border-neutral-100 border-b-[1px]">
           <p className="text-lg font-bold">Overview</p>
 
-          <button className="flex gap-2 items-center justify-center py-[10px] px-5 bg-neutral-900 text-neutral-50 rounded-full text-sm">
+          <button
+            className="flex gap-2 items-center justify-center py-[10px] px-5 bg-neutral-900 text-neutral-50 rounded-full text-sm"
+            onClick={handleOpen}
+          >
             {" "}
             <svg
               width="20"
@@ -139,20 +158,13 @@ function ClientsComponent() {
                 stroke-linejoin="round"
               />
             </svg>{" "}
-            <span onClick={handleOpen}>Add new</span>
+            <span>Add new</span>
           </button>
         </span>
       </header>
       <section className="grid grid-cols-12 gap-5 justify-center px-6 py-12">
-        {/* <div className="col-span-12 text-center">
-          {isPending && <>Pending...</>}
-        </div> */}
-        {isPending ? (
-          <p className="items-center text-center col-span-12 flex justify-center h-[50vh]">
-            <Image src={fi_rotate} alt="Spinner" className="animate-spin" />
-          </p>
-        ) : getClients?.length > 0 ? (
-          getClients.map((user) => (
+        {getClients?.length > 0 ? (
+          [...getClients].reverse().map((user) => (
             <div
               key={user.id}
               className="xl:col-span-4 lg:col-span-4 md:col-span-6 sm:col-span-6 col-span-12 drop-shadow-sm border-[0.5px] border-neutral-50 shadow-xl p-4 rounded-lg bg-white"
@@ -182,26 +194,82 @@ function ClientsComponent() {
                     </span>
                   </div>
                 </span>
-                <span className="cursor-pointer">
-                  <svg
-                    width="25"
-                    height="24"
-                    viewBox="0 0 25 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle cx="12.3333" cy="5" r="2" fill="#1D1D24" />
-                    <circle cx="12.3333" cy="12" r="2" fill="#1D1D24" />
-                    <circle cx="12.3333" cy="19" r="2" fill="#1D1D24" />
-                  </svg>
-                </span>
+
+                <Menu
+                  animate={{
+                    mount: { y: 0 },
+                    unmount: { y: 25 },
+                  }}
+                >
+                  <MenuHandler>
+                    <span className="cursor-pointer h-6">
+                      <svg
+                        width="25"
+                        height="24"
+                        viewBox="0 0 25 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle cx="12.3333" cy="5" r="2" fill="#1D1D24" />
+                        <circle cx="12.3333" cy="12" r="2" fill="#1D1D24" />
+                        <circle cx="12.3333" cy="19" r="2" fill="#1D1D24" />
+                      </svg>
+                    </span>
+                  </MenuHandler>
+                  <MenuList>
+                    <MenuItem className="flex items-center gap-1 text-neutral-900 font-medium">
+                      <svg
+                        width="21"
+                        height="20"
+                        viewBox="0 0 21 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M14.5 2.5009C14.7189 2.28203 14.9787 2.10842 15.2647 1.98996C15.5506 1.87151 15.8571 1.81055 16.1667 1.81055C16.4762 1.81055 16.7827 1.87151 17.0687 1.98996C17.3546 2.10842 17.6145 2.28203 17.8333 2.5009C18.0522 2.71977 18.2258 2.97961 18.3443 3.26558C18.4627 3.55154 18.5237 3.85804 18.5237 4.16757C18.5237 4.4771 18.4627 4.7836 18.3443 5.06956C18.2258 5.35553 18.0522 5.61537 17.8333 5.83424L6.58333 17.0842L2 18.3342L3.25 13.7509L14.5 2.5009Z"
+                          stroke="#1D1D24"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>{" "}
+                      Edit
+                    </MenuItem>
+                    <MenuItem
+                      className="text-[#B11C1C] flex items-center hover:text-red-500 gap-1 font-medium "
+                      onClick={() => handleDeleteClient(user.id)}
+                    >
+                      <svg
+                        width="21"
+                        height="20"
+                        viewBox="0 0 21 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M2.8335 5H4.50016H17.8335"
+                          stroke="#B11C1C"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M7 4.99935V3.33268C7 2.89065 7.17559 2.46673 7.48816 2.15417C7.80072 1.84161 8.22464 1.66602 8.66667 1.66602H12C12.442 1.66602 12.866 1.84161 13.1785 2.15417C13.4911 2.46673 13.6667 2.89065 13.6667 3.33268V4.99935M16.1667 4.99935V16.666C16.1667 17.108 15.9911 17.532 15.6785 17.8445C15.366 18.1571 14.942 18.3327 14.5 18.3327H6.16667C5.72464 18.3327 5.30072 18.1571 4.98816 17.8445C4.67559 17.532 4.5 17.108 4.5 16.666V4.99935H16.1667Z"
+                          stroke="#B11C1C"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      Delete
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
               </div>
               <p className="text-xs uppercase text-neutral-700 font-bold my-2">
                 invoices
               </p>
-              <div className="bg-neutral-100 mt-3 rounded-md flex flex-col">
-                {/* ... (rest of the code) ... */}
-              </div>
+              <div className="bg-neutral-100 mt-3 rounded-md flex flex-col"></div>
             </div>
           ))
         ) : (
@@ -240,7 +308,7 @@ function ClientsComponent() {
         </span>
         <DialogBody>
           <section>
-            <div className="my-3">
+            <form className="my-3">
               <>
                 <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
                   CLIENT INFO
@@ -331,7 +399,7 @@ function ClientsComponent() {
                   )}
                 </button>
               </>
-            </div>
+            </form>
             {/* Option two */}
             <div className="my-3"></div>
           </section>

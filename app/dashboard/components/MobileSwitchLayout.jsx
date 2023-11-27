@@ -1,10 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import mobiile_logo from "../../../public/dashboard/mobile_logo.svg";
 import Image from "next/image";
 import MobileView from "../../components/MobileView";
+import { usePathname } from "next/navigation";
 
 const MobileSwitchLayout = () => {
   const [navbar, setNavbar] = useState(false);
+
+  const pathname = usePathname();
+  const [active, setActive] = useState(null);
+
+  useEffect(() => {
+    const handleActive = () => {
+      let checker = pathname.replace("/dashboard/", "");
+      setActive(checker);
+    };
+    handleActive();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   return (
     <div>
@@ -12,7 +25,10 @@ const MobileSwitchLayout = () => {
         <div>
           <Image src={mobiile_logo} alt="Mobile Loogo" />
         </div>
-        <div className="text-lg font-bold">Dashboard</div>
+        <p className="text-2xl text-neutral-900 font-semibold capitalize">
+          {" "}
+          {pathname === "/dashboard" ? "dashboard" : active}
+        </p>
         <button onClick={() => setNavbar(!navbar)}>
           <svg
             width="32"

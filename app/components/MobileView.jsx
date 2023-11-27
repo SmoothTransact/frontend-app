@@ -9,13 +9,14 @@ import { useLogoutMutation } from "@/app/utils/rtk/apiSlice";
 import { useDispatch } from "react-redux";
 import { dispatchLogout } from "@/app/utils/redux/userSlice";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const MobileView = ({ navbar, setNavbar }) => {
   const [isPending, setIsPending] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
   const pathname = usePathname();
+  const [active, setActive] = useState(null);
 
   const [logout] = useLogoutMutation();
 
@@ -23,9 +24,9 @@ const MobileView = ({ navbar, setNavbar }) => {
     setIsPending(true);
     try {
       await logout();
-      setNavbar(!navbar);
       dispatch(dispatchLogout());
-      router.push("auth/login");
+      router.push("/auth/login");
+      redirect("/auth/login");
     } catch (er) {
       console.error(`${er.message}`);
       setIsPending(false);
@@ -44,6 +45,7 @@ const MobileView = ({ navbar, setNavbar }) => {
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center justify-start gap-2"
             }
+            onClick={() => setNavbar(!navbar)}
           >
             {" "}
             Dashboard
@@ -55,6 +57,7 @@ const MobileView = ({ navbar, setNavbar }) => {
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50 group rounded-[9px] flex items-center justify-start gap-2"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
+            onClick={() => setNavbar(!navbar)}
           >
             {" "}
             Transactions
@@ -66,6 +69,7 @@ const MobileView = ({ navbar, setNavbar }) => {
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
+            onClick={() => setNavbar(!navbar)}
           >
             {" "}
             Notifications
@@ -77,6 +81,7 @@ const MobileView = ({ navbar, setNavbar }) => {
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center group justify-start gap-2"
             }
+            onClick={() => setNavbar(!navbar)}
           >
             {" "}
             Accounts
@@ -88,6 +93,7 @@ const MobileView = ({ navbar, setNavbar }) => {
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex group items-center justify-start gap-2"
             }
+            onClick={() => setNavbar(!navbar)}
           >
             {" "}
             Clients
@@ -99,6 +105,7 @@ const MobileView = ({ navbar, setNavbar }) => {
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 group flex items-center justify-start gap-2"
             }
+            onClick={() => setNavbar(!navbar)}
           >
             {" "}
             Invoices
@@ -110,6 +117,7 @@ const MobileView = ({ navbar, setNavbar }) => {
                 ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2"
                 : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 flex items-center justify-start gap-2"
             }
+            onClick={() => setNavbar(!navbar)}
           >
             {" "}
             Settings
