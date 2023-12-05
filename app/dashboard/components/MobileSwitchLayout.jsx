@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import mobiile_logo from "../../../public/dashboard/mobile_logo.svg";
+import mobiile_logo from "@/public/dashboard/mobile_logo.svg";
 import Image from "next/image";
-import MobileView from "../../components/MobileView";
+import MobileView from "@/app/components/MobileView";
 import { usePathname } from "next/navigation";
 
 const MobileSwitchLayout = () => {

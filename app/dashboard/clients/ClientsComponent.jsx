@@ -15,11 +15,10 @@ import {
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
-import trans_empty_icon from "../../../public/dashboard/trans_empty_icon.svg";
-import fi_loader from "../../../public/fi_loader.svg";
-import fi_check from "../../../public/fi_check.svg";
-import delete_note from "../../../public/dashboard/delete_note.svg";
-import error_outline from "../../../public/error_outline.svg";
+import trans_empty_icon from "@/public/dashboard/trans_empty_icon.svg";
+import fi_loader from "@/public/fi_loader.svg";
+import fi_check from "@/public/fi_check.svg";
+import error_outline from "@/public/error_outline.svg";
 
 function ClientsComponent({ user }) {
   const [getClients, setGetClients] = useState([]);

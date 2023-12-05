@@ -12,7 +12,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={plusJakartaSans.className}>
+      <body className={`${plusJakartaSans.className}`}>
         <Providers>
           <main>{children}</main>
         </Providers>

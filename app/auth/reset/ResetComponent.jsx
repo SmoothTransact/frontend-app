@@ -2,19 +2,18 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import RightOnboard from "../../components/auth/RightOnboard";
-import brandImg from "../../../public/brand_mobile.svg";
+import RightOnboard from "@/app/components/auth/RightOnboard";
+import brandImg from "@/public/brand_mobile.svg";
 import Link from "next/link";
 import { Typography } from "@material-tailwind/react";
 export { Typography };
 import TextInput from "@/app/components/Input";
-import fi_check from "../../../public/fi_check.svg";
-import open_eye from "../../../public/open_eye.svg";
-import fi_eyeoff from "../../../public/fi_eyeoff.svg";
-import error_outline from "../../../public/error_outline.svg";
+import fi_check from "@/public/fi_check.svg";
+import open_eye from "@/public/open_eye.svg";
+import fi_eyeoff from "@/public/fi_eyeoff.svg";
+import error_outline from "@/public/error_outline.svg";
 import Button from "@/app/components/Button";
 import { useResetpasswordMutation } from "@/app/utils/rtk/apiSlice";
-import { number } from "prop-types";
 
 export default function ResetComponent() {
   const [isPending, setIsPending] = useState(false);

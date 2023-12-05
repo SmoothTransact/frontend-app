@@ -5,8 +5,8 @@ import React from "react";
 import { Typography } from "@material-tailwind/react";
 export { Typography };
 import dummyData from "../dummyData.json";
-import trans_empty_icon from "../../../public/dashboard/trans_empty_icon.svg";
-import access_logo from "../../../public/dashboard/access_logo.svg";
+import trans_empty_icon from "@/public/dashboard/trans_empty_icon.svg";
+import access_logo from "@/public/dashboard/access_logo.svg";
 
 const AccountsComponent = () => {
   const data = dummyData.dummyData;
