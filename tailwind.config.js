@@ -13,6 +13,7 @@ module.exports = withMT({
       Plus_Jakarta_Sans: ["Plus Jakarta Sans"],
       display: ["Plus Jakarta Sans"],
       body: ['"Plus Jakarta Sans"'],
+      html: ['"Plus Jakarta Sans"'],
     },
     colors: {
       neutral: "#72768F",
@@ -32,6 +33,10 @@ module.exports = withMT({
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      },
+      maxWidth: {
+        1440: "1440px",
+        440: "440px",
       },
     },
   },

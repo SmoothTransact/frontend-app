@@ -26,7 +26,7 @@ import google_logo from "@/public/assets/google_logo.svg";
 import fi_check from "@/public/fi_check.svg";
 import error_outline from "@/public/error_outline.svg";
 
-export default function LoginComponent() {
+const Starter = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [password, setPassword] = useState("");
@@ -48,10 +48,6 @@ export default function LoginComponent() {
       setSuccessMessage("");
       setIsPending(false);
       return false;
-    }
-
-    if (data) {
-      console.log("Status", data);
     }
 
     if (error) {
@@ -115,7 +111,7 @@ export default function LoginComponent() {
         </div>
         {/* Main left section */}
         <div className="flex justify-center items-start px-3">
-          <div className="flex justify-center box-border flex-col lg:items-start items-center lg:min-h-screen mt-6 lg:py-0 py-16 w-auto">
+          <div className="flex justify-center box-border flex-col lg:items-start items-center lg:min-h-screen mt-6 lg:py-0 py-16 w-auto ">
             <h2 className="lg:text-[40px] text-[32px] font-bold text-left text-gray-900">
               Sign in
             </h2>
@@ -125,7 +121,7 @@ export default function LoginComponent() {
                 New user?{" "}
                 <Link
                   href="/"
-                  className="text-gray-900 underline hover:text-light-blue-600"
+                  className="text-gray-900 underline hover:font-bold"
                 >
                   Create an account here.
                 </Link>{" "}
@@ -147,7 +143,7 @@ export default function LoginComponent() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email address"
-                    className=" input_component focus:ring-blue-600/1"
+                    className=" !border-t-blue-gray-200  border-[1.5px] !border-neutral-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent text-base placeholder:text-neutral-600 focus:!border-blue-600 mt-2 focus:!border-t-blue-600 focus:bg-white focus:ring-blue-600/1"
                     labelProps={{
                       className: "before:content-none after:content-none",
                     }}
@@ -166,7 +162,7 @@ export default function LoginComponent() {
                       value={password}
                       type={showPassword ? "text" : "password"}
                       onChange={(e) => setPassword(e.target.value)}
-                      className=" input_component focus:ring-blue-600/1"
+                      className=" !border-t-blue-gray-200  border-[1.5px] !border-neutral-300 bg-white text-gray-900 shadow-lg shadow-gray-900/5 ring-4 ring-transparent text-base placeholder:text-neutral-600 focus:!border-blue-600 mt-2 focus:!border-t-blue-600 focus:bg-white focus:ring-blue-600/1"
                       labelProps={{
                         className: "before:content-none after:content-none",
                       }}
@@ -248,4 +244,6 @@ export default function LoginComponent() {
       </section>
     </main>
   );
-}
+};
+
+export default Starter;

@@ -1,18 +1,17 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Image from "next/image";
-// import fi_loader from "/fi_loader.svg";
-import fi_loader from "../../public/fi_loader.svg";
+import fi_loader from "@/public/fi_loader.svg";
 
 const Button = ({ label, onClick, variant, isLoading = false }) => {
   const getButtonClasses = () => {
     if (variant === "primary") {
       return isLoading
-        ? "bg-[#A5A9C2] text-gray-100 mt-5 lg:w-[470px] w-[294px] rounded-full px-8 py-[14px] lg:text-lg text-base "
+        ? "bg-[#A5A9C2] text-gray-100 mt-5 w-full rounded-full px-8 py-[14px] lg:text-lg text-base "
         : "onboardCreateButton";
     } else if (variant === "secondary") {
       // Add secondary button styles here
-      return "lg:min-w-[470px] lg:h-[54px] h-[52px] w-[294px] my-2 bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base";
+      return " lg:h-[54px] h-[52px] w-full my-2 bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base";
     }
     return "";
   };
