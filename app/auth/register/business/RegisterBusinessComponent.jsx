@@ -148,7 +148,7 @@ export default function RegisterBusinessComponent() {
           <div className="flex justify-center box-border flex-col lg:items-start items-center lg:min-h-screen mt-6 lg:py-0 py-16 w-auto">
             <p className="underline ">Business User</p>
             <h2 className="lg:text-[40px] text-[32px] font-bold text-left text-gray-900">
-              Crerate an account
+              Create an account
             </h2>
             <span className="flex gap-1 items-center">
               {" "}

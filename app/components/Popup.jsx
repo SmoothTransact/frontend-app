@@ -8,20 +8,20 @@ import {
 } from "@material-tailwind/react";
 
 const Popup = ({
+  tick,
+  handleTick,
+  handler = handler,
   selectInvoiceType,
   setSelectInvoiceType,
-  handleOpen,
-  open,
-  handler = handler,
 }) => {
   return (
-    <Dialog open={open} handler={handleOpen}>
+    <Dialog open={tick} handler={handleTick}>
       <span className="flex justify-between items-center">
         <DialogHeader className="text-2xl text-gray-900">
           Create invoice
         </DialogHeader>
         <DialogHeader
-          onClick={handleOpen}
+          onClick={handleTick}
           onClose={() => setSelectInvoiceType("existing")}
           className="cursor-pointer"
         >

@@ -1,36 +1,37 @@
-"use client";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { usePathname } from "next/navigation";
 import Image from "next/image";
-import fi_loader from "@/public/fi_loader.svg";
+import React from "react";
+
 import fi_check from "@/public/fi_check.svg";
+import fi_x from "@/public/dashboard/fi_x.svg";
 import error_outline from "@/public/error_outline.svg";
+import fi_loader from "@/public/fi_loader.svg";
 
-export default function ClientDetails() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [generalMessage, setGeneralMessage] = useState(null);
-
-  const pathname = usePathname();
-  const parts = pathname.split("/");
-  const clientId = parts[parts.length - 1];
-
-  const clientDetails = useSelector((state) =>
-    state.clients.clients.find((client) => client.id === clientId)
-  );
-
-  const [fullName, setFullName] = useState(clientDetails?.fullName || "");
-  const [email, setEmail] = useState(clientDetails?.email || "");
-  const [phone, setPhone] = useState(clientDetails?.phone || "");
-
+const ClientModalContent = ({
+  handleCreateClient = { handleCreateClient },
+  setFullName = { setFullName },
+  fullName = { fullName },
+  email = { email },
+  setEmail = { setEmail },
+  phone = { phone },
+  setPhone = { setPhone },
+  successMessage = { successMessage },
+  generalMessage = { generalMessage },
+  isLoading = { isLoading },
+  onClick = { handleOpenModal },
+}) => {
   return (
-    <main className="px-6 py-6 bg-neutral-50 min-h-screen flex justify-center">
+    <div>
+      <span className="flex justify-between items-center">
+        <p className="text-xl text-gray-900">Add new client</p>
+        <buttton onClick={handleOpenModal} className="cursor-pointer">
+          <Image src={fi_x} alt="close button" />
+        </buttton>
+      </span>
       <section>
-        <form className="my-3 max-w-2xl  bg-white shadow p-5 rounded-xl">
+        <form className="my-3">
           <>
             <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
-              EDIT CLIENT INFO
+              CLIENT INFO
             </p>
 
             {/* task */}
@@ -99,10 +100,10 @@ export default function ClientDetails() {
             <button
               className={
                 isLoading
-                  ? " disabled w-full mt-3  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
-                  : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-3"
+                  ? " disabled w-full mt-8  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
+                  : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8"
               }
-              //   onClick={handleCreateClient}
+              onClick={handleCreateClient}
             >
               {isLoading ? (
                 <div className="flex justify-center items-center ">
@@ -122,6 +123,8 @@ export default function ClientDetails() {
         {/* Option two */}
         <div className="my-3"></div>
       </section>
-    </main>
+    </div>
   );
-}
+};
+
+export default ClientModalContent;

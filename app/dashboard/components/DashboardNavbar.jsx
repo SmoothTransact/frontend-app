@@ -8,17 +8,34 @@ const DashboardNavbar = () => {
   const pathname = usePathname();
   const [active, setActive] = useState(null);
 
+  // useEffect(() => {
+  //   const handleActive = () => {
+  //     let checker = pathname.replace("/dashboard/", "");
+  //     if (checker includes("clients") {
+  //       setActive("Clients").split(0, 7);
+  //     } else {
+  //       setActive(checker);
+  //     }
+  //   };
+  //   handleActive();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [pathname]);
+
   useEffect(() => {
     const handleActive = () => {
       let checker = pathname.replace("/dashboard/", "");
-      setActive(checker);
+      if (checker.includes("clients")) {
+        setActive("Clients".substring(0, 7));
+      } else {
+        setActive(checker);
+      }
     };
+
     handleActive();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, setActive]);
 
   return (
-    <header className="border-neutral-100 bg-neutral-50">
+    <header className="border-neutral-100 bg-white">
       <MobileSwitchLayout />
       <nav className="xl:flex lg:flex pt-12 pb-5 md:hidden hidden px-6 border-b-[1px] gap-8 justify-between items-center">
         <div className="w-1/4">

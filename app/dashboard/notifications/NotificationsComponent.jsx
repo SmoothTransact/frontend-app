@@ -29,7 +29,7 @@ const NotificationsComponent = () => {
   );
   return (
     <main className="bg-neutral-100 min-h-screen pb-8">
-      <header className="  border-neutral-100 bg-neutral-50 px-6 py-3 flex justify-between items-center">
+      <header className="  border-neutral-100 bg-white px-6 py-3 flex justify-between items-center">
         <span className="flex items-center gap-8">
           <button
             onClick={() => setTabs(1)}
@@ -51,32 +51,9 @@ const NotificationsComponent = () => {
           >
             Unread (0)
           </button>
-        </span>
-        <button className="flex gap-2 items-center justify-center py-[10px] px-5 bg-neutral-900 text-neutral-50 rounded-full text-sm">
-          {" "}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10 4.16699V15.8337"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M4.16675 10H15.8334"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>{" "}
-          <span>Add new</span>
+        </span>{" "}
+        <button className="underline text-neutral-900 text-sm font-bold">
+          Mark all as read
         </button>
       </header>
       <section className="px-6 py-3">
