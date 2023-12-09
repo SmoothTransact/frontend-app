@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import React, { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, redirect } from "next/navigation";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { Dialog, DialogHeader, DialogBody } from "@material-tailwind/react";
@@ -16,9 +16,17 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 import trans_empty_icon from "@/public/dashboard/trans_empty_icon.svg";
+import fi_plus from "@/public/dashboard/fi_plus.svg";
+
 import fi_loader from "@/public/fi_loader.svg";
 import fi_check from "@/public/fi_check.svg";
 import error_outline from "@/public/error_outline.svg";
+import {
+  dispatchClients,
+  addClient,
+  deleteClient,
+} from "@/app/utils/redux/clientSlice";
+import { useDispatch } from "react-redux";
 
 function ClientsComponent({ user }) {
   const [getClients, setGetClients] = useState([]);
@@ -27,9 +35,10 @@ function ClientsComponent({ user }) {
   const [open, setOpen] = React.useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [generalMessage, setGeneralMessage] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
+  // const [openModal, setOpenModal] = useState(false);
   const handleOpen = () => setOpen(!open);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const MySwal = withReactContent(Swal);
 
@@ -39,6 +48,12 @@ function ClientsComponent({ user }) {
   const [phone, setPhone] = useState("");
 
   const token = useSelector((state) => state.user.accessToken);
+
+  useEffect(() => {
+    if (!token) {
+      return redirect("/auth/login");
+    }
+  }, [token, router]);
 
   const handleGetAllClients = async () => {
     setIsPending(true);
@@ -53,6 +68,7 @@ function ClientsComponent({ user }) {
         }
       );
       setGetClients(result.data);
+      dispatch(dispatchClients(result.data));
       setIsPending(false);
     } catch (er) {
       console.error(`${er.message}`);
@@ -78,13 +94,19 @@ function ClientsComponent({ user }) {
     };
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}clients`, userData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_URL}clients`,
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       handleGetAllClients();
       setSuccessMessage("Client added successfully");
+      console.log("creating client", response.data);
+      dispatch(addClient(response.data));
       setGeneralMessage("");
       setFullName("");
       setEmail("");
@@ -109,18 +131,6 @@ function ClientsComponent({ user }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // const handleDeleteClient = async (id) => {
-  //   try {
-  //     await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}clients/${id}`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
-
   const handleDeleteClient = async (id) => {
     Swal.fire({
       title: "Are you sure?",
@@ -142,19 +152,25 @@ function ClientsComponent({ user }) {
             }
           );
 
+          dispatch(deleteClient(id));
+          handleGetAllClients();
           Swal.fire({
             title: "Deleted!",
             text: ` Deleted successfully.`,
             icon: "success",
           });
 
-          handleGetAllClients(); // Refresh the client list after deletion
+          // Refresh the client list after deletion
         } catch (error) {
           // Handle errors
           console.error(error);
         }
       }
     });
+  };
+
+  const handleClientEdit = (id) => {
+    router.push(`/dashboard/clients/${id}`);
   };
 
   const Empty = (
@@ -173,36 +189,15 @@ function ClientsComponent({ user }) {
   return (
     <main className="">
       <header className="  border-neutral-100 bg-neutral-50 z-50">
-        <span className="flex justify-between items-center px-6 py-3 lg:bg-neutral-50 bg-white border-neutral-100 border-b-[1px]">
+        <span className="flex justify-between items-center px-6 py-3  bg-white border-neutral-100 border-b-[1px]">
           <p className="text-lg font-bold">Overview</p>
 
           <button
             className="flex gap-2 items-center justify-center py-[10px] px-5 bg-neutral-900 text-neutral-50 rounded-full text-sm"
             onClick={handleOpen}
           >
-            {" "}
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10 4.16699V15.8337"
-                stroke="white"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M4.16675 10H15.8334"
-                stroke="white"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>{" "}
+            <Image src={fi_plus} alt="add button" width={20} height={20} />
+
             <span>Add new</span>
           </button>
         </span>
@@ -262,7 +257,10 @@ function ClientsComponent({ user }) {
                     </span>
                   </MenuHandler>
                   <MenuList>
-                    <MenuItem className="flex items-center gap-1 text-neutral-900 font-medium">
+                    <MenuItem
+                      className="flex items-center gap-1 text-neutral-900 font-medium"
+                      onClick={() => handleClientEdit(user.id)}
+                    >
                       <svg
                         width="21"
                         height="20"

@@ -2,10 +2,11 @@
 "use client";
 
 import React, { useState } from "react";
-import emptyIcon from "@/public/dashboard/icon.svg";
 import Image from "next/image";
+
+import emptyIcon from "@/public/dashboard/icon.svg";
 import dummyData from "./dummyData.json";
-// import Popup from "../components/Popup";
+import Popup from "../components/Popup";
 
 import {
   Card,
@@ -20,8 +21,23 @@ import {
   DialogHeader,
   Dialog,
 } from "@material-tailwind/react";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+
 import TextInput from "../components/Input";
+import Link from "next/link";
 export { Card, CardHeader, Typography, CardBody, Chip, IconButton, Tooltip };
+import fi_plus_add from "@/public/dashboard/fi_plus_add.svg";
+
+import fi_wallet from "@/public/dashboard/fi_wallet.svg";
+import fi_arrow_up from "@/public/dashboard/fi_arrow_up_right.svg";
+import fi_check from "@/public/fi_check.svg";
+import fi_x from "@/public/dashboard/fi_x.svg";
+import error_outline from "@/public/error_outline.svg";
+import fi_loader from "@/public/fi_loader.svg";
+import fi_plus from "@/public/dashboard/fi_plus.svg";
 
 const TABLE_HEAD = ["Name", "Amount", "Narration", "Date", "Status", ""];
 
@@ -106,15 +122,93 @@ function UserRow({ user, index }) {
 }
 
 const MainSectionDashboard = () => {
+  const style = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    borderRadius: 2,
+    width: "50%",
+    bgcolor: "background.paper",
+    border: ".5px solid #f2f2f2",
+    boxShadow: 24,
+    p: 4,
+  };
+
   const [selectInvoiceType, setSelectInvoiceType] = useState("existing");
   const [open, setOpen] = useState(false);
+  const [openAccountModal, setOpenAccountModal] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+
+  const handleAccountModal = () => setOpenAccountModal(!openAccountModal);
   const handleOpen = () => setOpen(!open);
+  const handleOpenModal = () => setOpenModal(!openModal);
+
   const data = dummyData.dummyData;
+
+  const [successMessage, setSuccessMessage] = useState("");
+  const [generalMessage, setGeneralMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [fullName, setFullName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const handleBankChange = (event) => {
+    setBankName(event.target.value);
+  };
+
+  // Create new client
+  const handleCreateClient = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    if (!email || !phone || !fullName) {
+      setGeneralMessage("All inputs are required to add a client");
+      setSuccessMessage("");
+      setIsLoading(false);
+      return false;
+    }
+
+    const userData = {
+      fullName,
+      email,
+      phone,
+    };
+
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}clients`, userData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      handleGetAllClients();
+      setSuccessMessage("Client added successfully");
+      setGeneralMessage("");
+      setFullName("");
+      setEmail("");
+      setPhone("");
+      setIsLoading(false);
+      setTimeout(() => {
+        setOpen(false);
+      }, 2000);
+    } catch (error) {
+      if (error.message === "Request failed with status code 401") {
+        setGeneralMessage("Unauthorized! User not logged in");
+        localStorage.clear();
+        return router.push("/auth/login");
+      }
+      setSuccessMessage("");
+      setIsLoading(false);
+    }
+  };
 
   return (
     <main className="bg-neutral-100 min-h-screen pb-8">
-      <header className="  border-neutral-100 bg-neutral-50">
-        <span className="flex justify-between items-center px-6 py-3 lg:bg-neutral-50 bg-white border-neutral-100 border-b-[1px]">
+      <header className="  border-neutral-100 bg-white">
+        <span className="flex justify-between items-center px-6 py-3  bg-white border-neutral-100 border-b-[1px]">
           <p className="text-lg font-bold">Overview</p>
 
           <button
@@ -122,28 +216,7 @@ const MainSectionDashboard = () => {
             className="flex gap-2 items-center justify-center py-[10px] px-5 bg-neutral-900 text-neutral-50 rounded-full text-sm"
           >
             {" "}
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10 4.16699V15.8337"
-                stroke="white"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M4.16675 10H15.8334"
-                stroke="white"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>{" "}
+            <Image src={fi_plus} alt="add button" width={20} height={20} />
             Create an invoice
           </button>
           <Dialog open={open} handler={handleOpen}>
@@ -512,64 +585,15 @@ const MainSectionDashboard = () => {
             </span>
             <span className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1">
               <span> Withdraw </span>
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M7 17L17 7"
-                  stroke="#5162FF"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M7 7H17V17"
-                  stroke="#5162FF"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <Image src={fi_arrow_up} alt="Arrow Up" />
             </span>
           </span>
           {/* wallet section */}
           <div className="mt-4">
-            <p className="text-3xl text-neutral-900 font-bold">₦0.00</p>
+            <p className="text-3xl text-neutral-900 font-bold">₦342,153.63</p>
             <p className="text-sm text-neutral-700 font-bold flex items-center gap-2 my-4">
               <span>Wallet:</span>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clip-path="url(#clip0_175_1837)">
-                  <path
-                    d="M16.6667 7.5H9.16667C8.24619 7.5 7.5 8.24619 7.5 9.16667V16.6667C7.5 17.5871 8.24619 18.3333 9.16667 18.3333H16.6667C17.5871 18.3333 18.3333 17.5871 18.3333 16.6667V9.16667C18.3333 8.24619 17.5871 7.5 16.6667 7.5Z"
-                    stroke="#0F0F0F"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M4.16663 12.5003H3.33329C2.89127 12.5003 2.46734 12.3247 2.15478 12.0122C1.84222 11.6996 1.66663 11.2757 1.66663 10.8337V3.33366C1.66663 2.89163 1.84222 2.46771 2.15478 2.15515C2.46734 1.84259 2.89127 1.66699 3.33329 1.66699H10.8333C11.2753 1.66699 11.6992 1.84259 12.0118 2.15515C12.3244 2.46771 12.5 2.89163 12.5 3.33366V4.16699"
-                    stroke="#0F0F0F"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_175_1837">
-                    <rect width="20" height="20" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
+              <Image src={fi_wallet} width={20} height={20} alt="Arrow Up" />
             </p>
           </div>
         </div>
@@ -580,77 +604,138 @@ const MainSectionDashboard = () => {
             <span className="text-base text-neutral-700 uppercase font-bold">
               Clients
             </span>
-            <span className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1">
-              <span> View all </span>
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M7 17L17 7"
-                  stroke="#5162FF"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M7 7H17V17"
-                  stroke="#5162FF"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </span>
+            <button className="text-base cursor-pointer text-[#5162FF] capitalize font-bold flex items-center gap-1">
+              <Link href="dashboard/clients"> View all </Link>
+              <Image src={fi_arrow_up} width={20} height={20} alt="Arrow Up" />
+            </button>
           </span>
+
           <div className="flex items-center flex-col justify-center my-4">
-            <span>
-              <svg
-                width="52"
-                height="52"
-                viewBox="0 0 52 52"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect
-                  x="0.5"
-                  y="0.5"
-                  width="51"
-                  height="51"
-                  rx="25.5"
-                  fill="white"
-                />
-                <rect
-                  x="0.5"
-                  y="0.5"
-                  width="51"
-                  height="51"
-                  rx="25.5"
-                  stroke="#D2D4E1"
-                />
-                <path
-                  d="M26 19V33"
-                  stroke="#0F0F0F"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M19 26H33"
-                  stroke="#0F0F0F"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </span>
+            <button className="cursor-pointer" onClick={handleOpenModal}>
+              <Image
+                src={fi_plus_add}
+                width={52}
+                height={52}
+                alt="add button"
+              />
+            </button>
             <span className="text-sm text-neutral-900 mt-2 font-semibold">
               Add new
             </span>
           </div>
+          <Modal
+            open={openModal}
+            onClose={handleOpenModal}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={style}>
+              <span className="flex justify-between items-center">
+                <p className="text-xl text-gray-900 font-bold mb-3">
+                  Add new client
+                </p>
+                <buttton onClick={handleOpenModal} className="cursor-pointer">
+                  <Image src={fi_x} alt="close button" />
+                </buttton>
+              </span>
+              <section>
+                <form className="my-3">
+                  <>
+                    <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
+                      CLIENT INFO
+                    </p>
+
+                    {/* task */}
+                    <div className="my-6">
+                      <div className="my-3">
+                        <label className="text-sm  text-neutral-600">
+                          Client/Business name
+                          <input
+                            type="text"
+                            className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                            placeholder="Enter the client/business name"
+                            required
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                          />
+                        </label>
+                      </div>
+                      <div className="my-3">
+                        <label className="text-sm  text-neutral-600">
+                          Email address
+                          <input
+                            type="email"
+                            className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                            placeholder="Enter the client/business email "
+                            required
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
+                        </label>
+                      </div>
+                      <div className="my-3">
+                        <label className="text-sm  text-neutral-600">
+                          Phone number
+                          <input
+                            type="number"
+                            className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                            placeholder="Enter phone number here"
+                            required
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <p
+                      className={
+                        successMessage
+                          ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                          : "hidden my-2"
+                      }
+                    >
+                      <Image src={fi_check} alt="loader" className="" />
+                      {successMessage}
+                    </p>
+                    <p
+                      className={
+                        generalMessage
+                          ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                          : "hidden my-2"
+                      }
+                    >
+                      <Image src={error_outline} alt="loader" className="" />
+                      {generalMessage}
+                    </p>
+
+                    <button
+                      className={
+                        isLoading
+                          ? " disabled w-full mt-8  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
+                          : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8"
+                      }
+                      onClick={handleCreateClient}
+                    >
+                      {isLoading ? (
+                        <div className="flex justify-center items-center ">
+                          <Image
+                            src={fi_loader}
+                            alt="loader"
+                            className="animate-spin"
+                          />
+                          Saving...
+                        </div>
+                      ) : (
+                        "Save"
+                      )}
+                    </button>
+                  </>
+                </form>
+                {/* Option two */}
+                <div className="my-3"></div>
+              </section>
+            </Box>
+          </Modal>
         </div>
         {/* three */}
         <div className="xl:col-span-3 lg:col-span-4 md:col-span-3 w-full  inline-block self-center mx-1  rounded-lg border-neutral-50 bg-white border-[1px] px-5 py-[30px] snap-center">
@@ -659,76 +744,138 @@ const MainSectionDashboard = () => {
             <span className="text-base text-neutral-700 uppercase font-bold">
               Account
             </span>
-            <span className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1">
+            <Link
+              href="/dashboard/accounts"
+              className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1"
+            >
               <span> View all </span>
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M7 17L17 7"
-                  stroke="#5162FF"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M7 7H17V17"
-                  stroke="#5162FF"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </span>
+              <Image src={fi_arrow_up} width={20} height={20} alt="Arrow Up" />
+            </Link>
           </span>
           <div className="flex items-center flex-col justify-center my-4">
-            <span>
-              <svg
-                width="52"
-                height="52"
-                viewBox="0 0 52 52"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect
-                  x="0.5"
-                  y="0.5"
-                  width="51"
-                  height="51"
-                  rx="25.5"
-                  fill="white"
-                />
-                <rect
-                  x="0.5"
-                  y="0.5"
-                  width="51"
-                  height="51"
-                  rx="25.5"
-                  stroke="#D2D4E1"
-                />
-                <path
-                  d="M26 19V33"
-                  stroke="#0F0F0F"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M19 26H33"
-                  stroke="#0F0F0F"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </span>
+            <button onClick={handleAccountModal} className="cursor-pointer">
+              <Image
+                src={fi_plus_add}
+                width={52}
+                height={52}
+                alt="add button"
+              />
+            </button>
             <span className="text-sm text-neutral-900 mt-2 font-semibold">
               Add new
             </span>
+            <Modal
+              open={openAccountModal}
+              onClose={handleAccountModal}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box sx={style}>
+                <span className="flex justify-between items-center">
+                  <p className="text-xl text-gray-900 font-bold mb-3">
+                    Add new bank account
+                  </p>
+                  <buttton
+                    onClick={handleAccountModal}
+                    className="cursor-pointer"
+                  >
+                    <Image src={fi_x} alt="close button" />
+                  </buttton>
+                </span>
+                <section>
+                  <form className="my-3">
+                    <>
+                      <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
+                        ACCOUNT INFO
+                      </p>
+
+                      {/* task */}
+                      <div className="my-6">
+                        <div className="my-3">
+                          <label className="text-sm  text-neutral-600">
+                            Bank
+                            <Select
+                              labelId="demo-select-small-label"
+                              id="demo-select-small"
+                              className="w-full px-2 border-[.5px] py-[-10px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                              value={bankName}
+                              label="Bank Name"
+                              onChange={handleBankChange}
+                              inputProps={{ "aria-label": "Without label" }}
+                              labelProps={{
+                                className:
+                                  "before:content-none after:content-none",
+                              }}
+                            >
+                              <MenuItem value={1}>Access Bank</MenuItem>
+                              <MenuItem value={2}>Zenith Bank</MenuItem>
+                              <MenuItem value={3}>GTB</MenuItem>
+                            </Select>
+                          </label>
+                        </div>
+                        <div className="my-3">
+                          <label className="text-sm  text-neutral-600">
+                            Account number
+                            <input
+                              type="number"
+                              className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                              placeholder="Enter the client/business email "
+                              required
+                              value={accountNumber}
+                              onChange={(e) => setAccountNumber(e.target.value)}
+                            />
+                          </label>
+                        </div>
+                      </div>
+                      <p
+                        className={
+                          successMessage
+                            ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                            : "hidden my-2"
+                        }
+                      >
+                        <Image src={fi_check} alt="loader" className="" />
+                        {successMessage}
+                      </p>
+                      <p
+                        className={
+                          generalMessage
+                            ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                            : "hidden my-2"
+                        }
+                      >
+                        <Image src={error_outline} alt="loader" className="" />
+                        {generalMessage}
+                      </p>
+
+                      <button
+                        className={
+                          isLoading
+                            ? " disabled w-full mt-8  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
+                            : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8"
+                        }
+                        onClick={handleCreateClient}
+                      >
+                        {isLoading ? (
+                          <div className="flex justify-center items-center ">
+                            <Image
+                              src={fi_loader}
+                              alt="loader"
+                              className="animate-spin"
+                            />
+                            Saving...
+                          </div>
+                        ) : (
+                          "Save"
+                        )}
+                      </button>
+                    </>
+                  </form>
+                  {/* Option two */}
+                  <div className="my-3"></div>
+                </section>
+              </Box>
+            </Modal>
           </div>
         </div>
       </section>
@@ -747,7 +894,7 @@ const MainSectionDashboard = () => {
                     Recent transactions
                   </span>
                   <span className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1">
-                    <span> view All </span>
+                    <Link href="/dashboard/transactions"> view All </Link>
                   </span>
                 </span>
               </CardHeader>
@@ -797,7 +944,7 @@ const MainSectionDashboard = () => {
                     Pending transactions
                   </span>
                   <span className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1">
-                    <span> view All </span>
+                    <Link href="/dashboard/transactions"> view All </Link>
                   </span>
                 </span>
               </CardHeader>

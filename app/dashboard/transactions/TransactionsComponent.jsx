@@ -30,7 +30,7 @@ const TransactionsComponent = () => {
   );
   return (
     <main className="bg-neutral-100 min-h-screen pb-8">
-      <header className="  border-neutral-100 bg-neutral-50 px-6 py-3 ">
+      <header className="  border-neutral-100 bg-white px-6 py-3 ">
         <span className="flex items-center gap-8">
           <button
             onClick={() => setTabs(1)}

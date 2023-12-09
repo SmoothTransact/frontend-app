@@ -1,20 +1,113 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { Radio } from "@material-tailwind/react";
-// import { Select, Option } from "@material-tailwind/react";
+import axios from "axios";
 
 import { Dialog, DialogHeader, DialogBody } from "@material-tailwind/react";
 
 // import trans_empty_icon from "@/public/dashboard/trans_empty_icon.svg";
 import trans_empty_icon from "@/public/dashboard/trans_empty_icon.svg";
 import TextInput from "@/app/components/Input";
+import fi_plus from "@/public/dashboard/fi_plus.svg";
+import fi_user_check from "@/public/dashboard/fi_user_check.svg";
+import fi_user_plus from "@/public/dashboard/fi_user_plus.svg";
 
 const InvoicesComponent = () => {
   const [tabs, setTabs] = useState(1);
   const [selectInvoiceType, setSelectInvoiceType] = useState("existing");
   const [open, setOpen] = useState(false);
+
+  const [isPending, setIsPending] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleOpen = () => setOpen(!open);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [date, setDate] = useState("");
+
+  // check for clients
+  const clients = useSelector((state) => state.clients.clients);
+
+  const handleGetAllClients = async () => {
+    setIsPending(true);
+
+    try {
+      const result = await axios.get(
+        `${process.env.NEXT_PUBLIC_BASE_URL}clients`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setGetClients(result.data);
+      dispatch(dispatchClients(result.data));
+      setIsPending(false);
+    } catch (er) {
+      console.error(`${er.message}`);
+    }
+  };
+
+  const handleCreateInvoice = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    if (!description || !amount || !clientId || !date) {
+      setGeneralMessage("All inputs are required to add an invoice");
+      setSuccessMessage("");
+      setIsLoading(false);
+      return false;
+    }
+    // Note, create an arguement to let the axios function know when a client is selected or addingn a new client.
+    const userData = {
+      description,
+      amount,
+      date,
+    };
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_URL}invoices/${clientId}`,
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      handleGetAllInvoices();
+      setSuccessMessage("Client added successfully");
+      console.log("creating client", response.data);
+      dispatch(addClient(response.data));
+      setGeneralMessage("");
+      setFullName("");
+      setEmail("");
+      setPhone("");
+      setIsLoading(false);
+      setTimeout(() => {
+        setOpen(false);
+      }, 2000);
+    } catch (error) {
+      if (error.message === "Request failed with status code 401") {
+        setGeneralMessage("Unauthorized! User not logged in");
+        localStorage.clear();
+        return router.push("/auth/login");
+      }
+      setSuccessMessage("");
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleGetAllClients();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const Empty = (
     <section className="min-h-[70vh] flex justify-center items-center">
@@ -31,7 +124,7 @@ const InvoicesComponent = () => {
   );
   return (
     <main className="bg-neutral-100 min-h-screen pb-8 relative">
-      <header className="  border-neutral-100 bg-neutral-50 px-6 py-3 lg:flex lg:justify-between items-center ">
+      <header className="  border-neutral-100 bg-white px-6 py-3 lg:flex lg:justify-between items-center ">
         <span className="flex items-center gap-8">
           <button
             onClick={() => setTabs(1)}
@@ -78,29 +171,8 @@ const InvoicesComponent = () => {
           className="lg:flex gap-2 items-center lg:justify-center justify-between py-[10px] px-5 bg-neutral-900 hidden text-neutral-50 rounded-full text-sm"
           onClick={handleOpen}
         >
-          {" "}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M10 4.16699V15.8337"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M4.16675 10H15.8334"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>{" "}
+          <Image src={fi_plus} alt="add button" width={20} height={20} />
+
           <span>Create new</span>
         </button>
 
@@ -196,35 +268,12 @@ const InvoicesComponent = () => {
                       onClick={() => setSelectInvoiceType("existing")}
                     >
                       <span className="flex gap-2 items-center justify-center text-bae text-neutral-700">
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
-                            stroke="#56586B"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M17 11L19 13L23 9"
-                            stroke="#56586B"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M8.5 11C10.7091 11 12.5 9.20914 12.5 7C12.5 4.79086 10.7091 3 8.5 3C6.29086 3 4.5 4.79086 4.5 7C4.5 9.20914 6.29086 11 8.5 11Z"
-                            stroke="#56586B"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
+                        <Image
+                          src={fi_user_check}
+                          alt="add button"
+                          width={24}
+                          height={24}
+                        />
                         For an existing client
                       </span>
                       <Radio name="type" ripple={true} defaultChecked />
@@ -236,42 +285,12 @@ const InvoicesComponent = () => {
                       onClick={() => setSelectInvoiceType("new")}
                     >
                       <span className="flex gap-2 items-center justify-center text-bae text-neutral-700">
-                        <svg
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
-                            stroke="#56586B"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M20 8V14"
-                            stroke="#56586B"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M23 11H17"
-                            stroke="#56586B"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M8.5 11C10.7091 11 12.5 9.20914 12.5 7C12.5 4.79086 10.7091 3 8.5 3C6.29086 3 4.5 4.79086 4.5 7C4.5 9.20914 6.29086 11 8.5 11Z"
-                            stroke="#56586B"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>{" "}
+                        <Image
+                          src={fi_user_plus}
+                          alt="add button"
+                          width={24}
+                          height={24}
+                        />
                         For a new client
                       </span>
                       <Radio name="type" ripple={true} />
@@ -293,18 +312,23 @@ const InvoicesComponent = () => {
                         <label className="text-sm text-neutral-600">
                           Client
                           <select
-                            className=" w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500 "
-                            placeholder="Select a client"
+                            className=" w-full py-3 px-3 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500 "
+                            value={clientId}
+                            onChange={(e) => {
+                              setClientId(e.target.value);
+                            }}
+
                             // labelProps={{
                             //   className: "hidden",
                             // }}
                           >
                             <option>Select a client</option>
-                            <option>client A</option>
-                            <option>client B</option>
-                            <option>client C</option>
-                            <option>client D</option>
-                            <option>client E</option>
+                            {clients &&
+                              clients?.map((client) => (
+                                <option key={client.id} value={client.id}>
+                                  {client.fullName}
+                                </option>
+                              ))}
                           </select>
                         </label>
                       </section>
@@ -337,7 +361,7 @@ const InvoicesComponent = () => {
                         </div>
                       </div>
                       {/* Add another task */}
-                      <button className="flex items-center justify-center font-bold text-neutral-900 gap-2">
+                      {/* <button className="flex items-center justify-center font-bold text-neutral-900 gap-2">
                         <svg
                           width="20"
                           height="20"
@@ -361,7 +385,7 @@ const InvoicesComponent = () => {
                           />
                         </svg>
                         Add another task
-                      </button>
+                      </button> */}
                       {/* Add another task */}
                       {/* Time Line */}
                       <div className="my-4">
@@ -373,8 +397,8 @@ const InvoicesComponent = () => {
                           <TextInput
                             variant="outlined"
                             type="date"
-                            value=""
-                            onChange=""
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
                             placeholder="Enter the name of the task"
                             required
                           />
@@ -395,6 +419,8 @@ const InvoicesComponent = () => {
                           type="text"
                           className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
                           placeholder="Enter the name of the task"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
                           required
                         />
                       </label>
@@ -405,6 +431,8 @@ const InvoicesComponent = () => {
                             type="email"
                             className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
                             placeholder="Enter the name of the task"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             required
                           />
                         </label>
@@ -422,6 +450,8 @@ const InvoicesComponent = () => {
                               type="text"
                               className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
                               placeholder="Enter the name of the task"
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
                               required
                             />
                           </label>
@@ -433,13 +463,15 @@ const InvoicesComponent = () => {
                               type="number"
                               className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
                               placeholder="Enter the amount for this task"
+                              value={amount}
+                              onChange={(e) => setAmount(e.target.value)}
                               required
                             />
                           </label>
                         </div>
                       </div>
                       {/* Add another task */}
-                      <button className="flex items-center justify-center font-bold text-neutral-900 gap-2">
+                      {/* <button className="flex items-center justify-center font-bold text-neutral-900 gap-2">
                         <svg
                           width="20"
                           height="20"
@@ -463,7 +495,7 @@ const InvoicesComponent = () => {
                           />
                         </svg>
                         Add another task
-                      </button>
+                      </button> */}
                       {/* Add another task */}
                       {/* Time Line */}
                       <div className="my-3">
@@ -475,8 +507,8 @@ const InvoicesComponent = () => {
                           <TextInput
                             variant="outlined"
                             type="date"
-                            value=""
-                            onChange=""
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
                             placeholder="Enter the name of the task"
                             required
                           />

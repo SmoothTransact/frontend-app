@@ -62,3 +62,11 @@ input[type="radio"] {
   height: 20px !important;
   width: 20px !important;
 }
+
+/* .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+  padding: 12px 16px !important;
+  --tw-border-opacity: 1 !important;
+  border-color: rgb(188 190 209 / var(--tw-border-opacity)) !important;
+  border-width: 0.2px !important;
+  border-radius: 0.5rem !important;
+} */
