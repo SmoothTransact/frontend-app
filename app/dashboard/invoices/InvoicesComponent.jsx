@@ -83,7 +83,7 @@ const InvoicesComponent = () => {
       );
       handleGetAllInvoices();
       setSuccessMessage("Client added successfully");
-      console.log("creating client", response.data);
+      // console.log("creating client", response.data);
       dispatch(addClient(response.data));
       setGeneralMessage("");
       setFullName("");

@@ -112,6 +112,18 @@ const MobileView = ({ navbar, setNavbar }) => {
             Invoices
           </Link>
           <Link
+            href="/dashboard/learn"
+            className={
+              pathname == "/dashboard/learn"
+                ? " py-3 px-4  bg-neutral-900 text-neutral-50  rounded-[9px] flex items-center justify-start gap-2 group"
+                : " text-neutral-900  py-3 px-4 hover:text-neutral-50 hover:rounded-[9px] hover:bg-neutral-900 group flex items-center justify-start gap-2"
+            }
+            onClick={() => setNavbar(!navbar)}
+          >
+            {" "}
+            Learn
+          </Link>
+          <Link
             href="/dashboard/settings"
             className={
               pathname == "/dashboard/settings"

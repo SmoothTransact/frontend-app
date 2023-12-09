@@ -10,14 +10,27 @@ const MobileSwitchLayout = () => {
   const pathname = usePathname();
   const [active, setActive] = useState(null);
 
+  // useEffect(() => {
+  //   const handleActive = () => {
+  //     let checker = pathname.replace("/dashboard/", "");
+  //     setActive(checker);
+  //   };
+  //   handleActive();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [pathname]);
+
   useEffect(() => {
     const handleActive = () => {
       let checker = pathname.replace("/dashboard/", "");
-      setActive(checker);
+      if (checker.includes("clients")) {
+        setActive("Clients".substring(0, 7));
+      } else {
+        setActive(checker);
+      }
     };
+
     handleActive();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, setActive]);
 
   return (
     <div>

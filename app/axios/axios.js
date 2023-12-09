@@ -2,7 +2,7 @@ import axios from "axios";
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 const token = localStorage.getItem("token");
-console.log("instances token", token);
+// console.log("instances token", token);
 
 const headers = {
   Authorization: `Bearer ${token}`,
