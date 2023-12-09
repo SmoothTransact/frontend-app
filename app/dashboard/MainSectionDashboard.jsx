@@ -128,7 +128,7 @@ const MainSectionDashboard = () => {
     left: "50%",
     transform: "translate(-50%, -50%)",
     borderRadius: 2,
-    width: "50%",
+    width: "90%",
     bgcolor: "background.paper",
     border: ".5px solid #f2f2f2",
     boxShadow: 24,

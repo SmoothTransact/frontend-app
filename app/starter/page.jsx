@@ -74,7 +74,7 @@ const Starter = () => {
         "token",
         JSON.stringify(result.data.data.accessToken)
       );
-      console.log("User data", result.data);
+      // console.log("User data", result.data);
       dispatch(dispatchIsLogged());
       dispatch(dispatchUser(result.data.data.user));
       dispatch(dispatchUserToken(result.data.data.accessToken));
