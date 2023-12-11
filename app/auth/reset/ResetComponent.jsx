@@ -17,6 +17,7 @@ import error_outline from "@/public/error_outline.svg";
 import google_logo from "@/public/assets/google_logo.svg";
 import Button from "@/app/components/Button";
 import { useResetpasswordMutation } from "@/app/utils/rtk/apiSlice";
+import { useRouter } from "next/navigation";
 
 export default function ResetComponent() {
   const [isPending, setIsPending] = useState(false);
@@ -32,6 +33,7 @@ export default function ResetComponent() {
   const [emailMessage, setEmailMessage] = useState("");
   const [otpMessage, setOtpMessage] = useState("");
 
+  const router = useRouter();
   const [resetpassword, { isLoading, error, data }] =
     useResetpasswordMutation();
 
