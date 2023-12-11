@@ -78,9 +78,9 @@ export default function LoginComponent() {
         "token",
         JSON.stringify(result.data.data.accessToken)
       );
-      console.log("User data", result.data);
+      // console.log("User data", result.data);
       dispatch(dispatchIsLogged());
-      dispatch(dispatchUser(result.data.data.user));
+      dispatch(dispatchUser(result.data.data.wallet));
       dispatch(dispatchUserToken(result.data.data.accessToken));
       dispatch(dispatchUserRefreshToken(result.data.data.refreshToken));
 

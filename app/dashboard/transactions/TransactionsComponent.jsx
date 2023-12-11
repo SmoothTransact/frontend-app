@@ -1,11 +1,122 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
+
+import dateFormat from "dateformat";
+
 import trans_empty_icon from "@/public/dashboard/trans_empty_icon.svg";
 import Button from "@/app/components/Button";
+import {
+  Card,
+  CardHeader,
+  Typography,
+  CardBody,
+  Chip,
+  IconButton,
+  Tooltip,
+} from "@material-tailwind/react";
+export { Card, CardHeader, Typography, CardBody, Chip, IconButton, Tooltip };
+
+const TABLE_HEAD = ["Name", "Amount", "Narration", "Date", "Status", ""];
+
+function UserRow({ invoice, index }) {
+  const isLast = index === invoice?.length - 1;
+  const classes = isLast ? "p-4" : "p-4 ";
+
+  return (
+    <tr key={invoice?.id}>
+      <td className={classes}>
+        <span className="flex items-center gap-3">
+          <span className="uppercase bg-[#EB7B7B] text-[#580E0E] w-12 h-12 flex items-center justify-center rounded-full font-semibold">
+            {invoice?.invoice?.clientDetails?.fullName
+              .split(" ")
+              .map((e) => e[0])
+              .join("")}
+          </span>
+          <span>
+            <Typography
+              variant="small"
+              className="capitalize text-base font-bold text-neutral-900"
+            >
+              {invoice?.invoice?.clientDetails?.fullName}
+            </Typography>
+            <Typography
+              variant="small"
+              className=" text-base font-semibold text-neutral-600"
+            >
+              {invoice?.invoice?.clientDetails?.email}
+            </Typography>
+          </span>
+        </span>
+      </td>
+      <td className={classes}>
+        <span className="flex items-center gap-3">
+          <Typography
+            variant="small"
+            className={
+              invoice?.invoice?.invoice.status === "paid"
+                ? "text-green-400  text-sm uppercase font-semibold"
+                : invoice?.invoice?.invoice.status === "pending"
+                  ? "text-[#C29C17]  text-sm uppercase font-semibold"
+                  : "text-[#B11C1C]  text-sm uppercase font-semibold "
+            }
+          >
+            ₦{formatNumber(invoice.invoice.invoice.amount)}
+          </Typography>
+        </span>
+      </td>
+      <td className={classes}>
+        <div className="flex items-center gap-3">
+          <Typography
+            variant="small"
+            className="capitalize text-base font-semibold text-neutral-700"
+          >
+            {invoice?.invoice?.invoice?.description}
+          </Typography>
+        </div>
+      </td>
+
+      <td className={classes}>
+        <span className="flex items-center gap-3">
+          <Typography
+            variant="small"
+            className="capitalize text-base font-semibold text-neutral-700"
+          >
+            {dateFormat(invoice?.invoice?.invoice.createdAt, "shortDate")}
+          </Typography>
+        </span>
+      </td>
+
+      <td className={classes}>
+        <span
+          className={
+            invoice?.invoice?.invoice.status === "paid"
+              ? "text-green-400  text-sm capitalize font-semibold"
+              : invoice?.invoice?.invoice.status === "pending"
+                ? "text-[#C29C17]  text-sm capitalize font-semibold"
+                : "text-[#B11C1C]  text-sm capitalize font-semibold  "
+          }
+        >
+          {invoice?.invoice?.invoice.status}
+        </span>
+      </td>
+    </tr>
+  );
+}
+
+const formatNumber = (number) => {
+  const formattedNumber = (number / 100).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return formattedNumber;
+};
 
 const TransactionsComponent = () => {
   const [tabs, setTabs] = useState(1);
+  const transactions = useSelector((state) => state.invoices.invoices);
+  // const invoices = useSelector((state) => state.invoices.invoices);
 
   const Empty = (
     <section className="min-h-[70vh] flex justify-center items-center">
@@ -66,7 +177,43 @@ const TransactionsComponent = () => {
       </header>
       <section className="px-6 py-3">
         {/* Tabs Sections */}
-        {tabs === 1 && <section>{Empty}</section>}
+        {tabs === 1 &&
+          (transactions.length > 0 ? (
+            <section>
+              {" "}
+              <Card className=" px-6 py-8 mb-8 shadow={false}">
+                <CardBody className="overflow-scroll overscroll-none px-0 scrollbar-hide">
+                  <table className="w-full min-w-max table-auto text-left">
+                    <thead>
+                      <tr>
+                        {TABLE_HEAD.map((head, index) => (
+                          <th key={index} className=" bg-white p-2" scope="col">
+                            <Typography
+                              variant="small"
+                              color="blue-gray"
+                              className="font-sm text-neutral-900 uppercase font-bold"
+                            >
+                              {head}
+                            </Typography>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {transactions.length > 0 &&
+                        transactions?.map((item, index) => (
+                          <UserRow invoice={item} index={index} key={item.id} />
+                        ))}
+                    </tbody>
+                  </table>
+                </CardBody>
+              </Card>
+              {/* testing */}
+            </section>
+          ) : (
+            { Empty }
+          ))}
         {tabs === 2 && <section>{Empty}</section>}
         {tabs === 3 && <section>{Empty}</section>}
       </section>

@@ -5,13 +5,16 @@ import { useState } from "react";
 import RightOnboard from "@/app/components/auth/RightOnboard";
 import brandImg from "@/public/brand_mobile.svg";
 import Link from "next/link";
-import { Typography } from "@material-tailwind/react";
-export { Typography };
+// import { Typography } from "@material-tailwind/react";
+// export { Typography };
+import { Card, Input, Typography } from "@material-tailwind/react";
+export { Card, Input, Typography };
 import TextInput from "@/app/components/Input";
 import fi_check from "@/public/fi_check.svg";
 import open_eye from "@/public/open_eye.svg";
 import fi_eyeoff from "@/public/fi_eyeoff.svg";
 import error_outline from "@/public/error_outline.svg";
+import google_logo from "@/public/assets/google_logo.svg";
 import Button from "@/app/components/Button";
 import { useResetpasswordMutation } from "@/app/utils/rtk/apiSlice";
 
@@ -137,8 +140,159 @@ export default function ResetComponent() {
             <p className="my-3 text-gray-700 lg:text-left text-center max-w-[440px] lg:text-lg text-base">
               We have sent an OTP to your email address. Enter the OTP to reset.
             </p>
+            <Card color="transparent" shadow={false}>
+              <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
+                <div className="mb-1 flex flex-col gap-6">
+                  <Typography
+                    variant="h6"
+                    color="blue-gray"
+                    className="-mb-3 text-neutral-600 text-sm text-left "
+                  >
+                    Email address
+                  </Typography>
+                  <Input
+                    size="lg"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    className=" input_component focus:ring-blue-600/1"
+                    labelProps={{
+                      className: "before:content-none after:content-none",
+                    }}
+                  />
+                  <Typography
+                    className={
+                      emailMessage
+                        ? "flex items-center text-left justify-start text-red-500 text-sm gap-2"
+                        : "hidden"
+                    }
+                  >
+                    <Image src={error_outline} alt="loader" className="" />
+                    {emailMessage}
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    color="blue-gray"
+                    className="-mb-3 text-neutral-600 text-sm text-left "
+                  >
+                    otp
+                  </Typography>
+                  <Input
+                    size="lg"
+                    type="number"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="Enter your otp"
+                    className=" input_component focus:ring-blue-600/1"
+                    labelProps={{
+                      className: "before:content-none after:content-none",
+                    }}
+                  />
+                  <p
+                    className={
+                      otpMessage
+                        ? "mt-3 flex items-center text-left justify-start text-red-500 text-sm gap-2"
+                        : "mt-3 hidden"
+                    }
+                  >
+                    <Image src={error_outline} alt="loader" className="" />{" "}
+                    {otpMessage}
+                  </p>
+                  <Typography
+                    variant="h6"
+                    color="blue-gray"
+                    className="-mb-3 text-neutral-600 text-sm text-left"
+                  >
+                    Password
+                  </Typography>
+                  <span className="relative">
+                    <Input
+                      size="lg"
+                      placeholder="Enter your preferred password"
+                      value={newPassword}
+                      type={showPassword ? "text" : "password"}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className=" input_component focus:ring-blue-600/1"
+                      labelProps={{
+                        className: "before:content-none after:content-none",
+                      }}
+                    />
+                    <span
+                      className="absolute right-3 top-[4px] cursor-pointer"
+                      aria-label="toggle password visibility "
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <Image
+                          src={fi_eyeoff}
+                          alt="Eye Icon"
+                          className="w-[20px] h-[20px] my-3 "
+                        />
+                      ) : (
+                        <Image
+                          src={open_eye}
+                          alt="Eye Icon"
+                          className="w-[20px] h-[20px] my-3 "
+                        />
+                      )}
+                    </span>
+                  </span>
+                </div>
+                <span className="mb-2">
+                  <p
+                    className={
+                      passwordMessage
+                        ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                        : "hidden my-2"
+                    }
+                  >
+                    <Image src={error_outline} alt="loader" className="" />
+                    {passwordMessage}
+                  </p>
+                </span>
+                <span className="mb-2">
+                  <p
+                    className={
+                      passwordMessage
+                        ? "mt-3 flex items-center text-left justify-start text-red-500 text-sm gap-2"
+                        : "mt-3 hidden"
+                    }
+                  >
+                    <Image src={error_outline} alt="loader" className="" />
+                    {passwordMessage}
+                  </p>
+                </span>
+                <p
+                  className={
+                    successMessage
+                      ? "mt-3 flex items-center text-left justify-start text-green-500 text-sm gap-2"
+                      : "mt-3 hidden"
+                  }
+                >
+                  <Image src={fi_check} alt="loader" className="" />
+                  {successMessage}
+                </p>
+                <p
+                  className={
+                    generalMessage
+                      ? " mt-3 flex items-center text-left justify-start text-red-500 text-sm gap-2"
+                      : " mt-3 hidden"
+                  }
+                >
+                  <Image src={error_outline} alt="loader" className="" />{" "}
+                  {generalMessage}
+                </p>
+                <Button
+                  label={isPending ? "Resetting..." : "Reset Password"}
+                  onClick={handleResetPassword}
+                  variant="primary"
+                  isLoading={isLoading || isPending}
+                />
+              </form>
+            </Card>
 
-            <form className="flex lg:items-start items-start flex-col">
+            {/* <form className="flex lg:items-start items-start flex-col">
               <Typography
                 variant="h5"
                 className="text-gray-600 text-sm text-left w-full my-3"
@@ -274,7 +428,7 @@ export default function ResetComponent() {
                 variant="primary"
                 isLoading={isLoading || isPending}
               />
-            </form>
+            </form> */}
           </div>
         </div>
       </section>
