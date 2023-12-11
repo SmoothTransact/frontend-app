@@ -212,7 +212,7 @@ const TransactionsComponent = () => {
               {/* testing */}
             </section>
           ) : (
-            { Empty }
+            Empty
           ))}
         {tabs === 2 && <section>{Empty}</section>}
         {tabs === 3 && <section>{Empty}</section>}
