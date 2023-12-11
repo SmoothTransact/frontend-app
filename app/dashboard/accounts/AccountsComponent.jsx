@@ -10,24 +10,27 @@ import { Typography, Option } from "@material-tailwind/react";
 export { Typography, Option };
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import Select from "@mui/material/Select";
-
-import dummyData from "../dummyData.json";
+import { useDispatch } from "react-redux";
+import { addAccount, dispatchAccounts } from "@/app/utils/redux/accountSlice";
 
 import trans_empty_icon from "@/public/dashboard/trans_empty_icon.svg";
-import access_logo from "@/public/dashboard/access_logo.svg";
 import fi_check from "@/public/fi_check.svg";
 import fi_plus from "@/public/dashboard/fi_plus.svg";
 import fi_x from "@/public/dashboard/fi_x.svg";
 import error_outline from "@/public/error_outline.svg";
 import fi_loader from "@/public/fi_loader.svg";
+import { useEffect } from "react";
 
 const AccountsComponent = () => {
-  const data = dummyData.dummyData;
   const [accountNumber, setAccountNumber] = useState("");
+  const [bankLists, setBankLists] = useState([]);
+  const [allAccounts, setAllAccounts] = useState([]);
   const [bankName, setBankName] = useState("");
   const [openAccountModal, setOpenAccountModal] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const handleAccountModal = () => setOpenAccountModal(!openAccountModal);
+
+  const dispatch = useDispatch();
 
   const [successMessage, setSuccessMessage] = useState("");
   const [generalMessage, setGeneralMessage] = useState(null);
@@ -37,7 +40,49 @@ const AccountsComponent = () => {
     setBankName(event.target.value);
   };
 
+  const handleGetAllAccounts = async () => {
+    setIsPending(true);
+
+    try {
+      const result = await axios.get(
+        `${process.env.NEXT_PUBLIC_BASE_URL}accounts`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // console.log("account all result", result.data.accountDetails);
+      setAllAccounts(result.data.accountDetails);
+      dispatch(dispatchAccounts(result.data.accountDetails));
+      setIsPending(false);
+    } catch (er) {
+      console.error(`${er.message}`);
+    }
+  };
+
+  const getAllBankNames = async () => {
+    try {
+      const response = await axios.get("https://api.paystack.co/bank");
+
+      if (Array.isArray(response.data.data)) {
+        setBankLists(response.data.data);
+      } else {
+        console.error("Response data is not an array:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching bank names:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAllBankNames();
+    handleGetAllAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const token = useSelector((state) => state.user.accessToken);
+  const bankAccounts = useSelector((state) => state.accounts.accounts);
 
   const style = {
     position: "absolute",
@@ -51,24 +96,6 @@ const AccountsComponent = () => {
     boxShadow: 24,
     p: 4,
   };
-
-  const BANK_OPTIONS = [
-    {
-      label: "Select an option",
-    },
-    {
-      value: "Access Bank",
-      label: "Access Bank",
-    },
-    {
-      value: "Zenith Bank",
-      label: "Zenith Bank",
-    },
-    {
-      value: "GTB",
-      label: "GTB",
-    },
-  ];
 
   // Helper function to handle API requests
   const makeApiRequest = async (url, data) => {
@@ -86,10 +113,19 @@ const AccountsComponent = () => {
 
   // Helper function to handle API errors
   const handleApiError = (error) => {
-    if (error.message === "Request failed with status code 401") {
-      setGeneralMessage("Unauthorized! User not logged in");
+    if (
+      error?.response?.data.message ===
+      "Failed to resolve and save account details"
+    ) {
+      setGeneralMessage(
+        "The account number does not match the associated bank name. Please review and verify the information"
+      );
+    } else if (
+      error?.response?.data.message === "Account number already exists"
+    ) {
+      setGeneralMessage("Account is already added");
+    } else if (error?.response?.data.message === "Unauthorized") {
       localStorage.clear();
-      // Redirect to login page or handle authentication logic
       router.push("/auth/login");
     }
     setSuccessMessage("");
@@ -103,9 +139,6 @@ const AccountsComponent = () => {
     setSuccessMessage("");
     setGeneralMessage("");
     setIsLoading(false);
-    setTimeout(() => {
-      setOpenAccountModal(false);
-    }, 2000);
   };
 
   const handleCreateAccount = async (e) => {
@@ -125,13 +158,18 @@ const AccountsComponent = () => {
         return false;
       }
 
-      await makeApiRequest(
+      const response = await makeApiRequest(
         `${process.env.NEXT_PUBLIC_BASE_URL}accounts`,
         userData
       );
 
-      setSuccessMessage("Account added successfully");
+      dispatch(addAccount(response.data));
+
+      setSuccessMessage(response.message);
       setGeneralMessage("");
+      setTimeout(() => {
+        setOpenAccountModal(false);
+      }, 2000);
       resetForm();
     } catch (error) {
       handleApiError(error);
@@ -210,9 +248,9 @@ const AccountsComponent = () => {
                                 "before:content-none after:content-none",
                             }}
                           >
-                            {BANK_OPTIONS.map((option) => (
-                              <option key={option.value} value={option.value}>
-                                {option.label}
+                            {bankLists?.map((option) => (
+                              <option key={option.id} value={option.name}>
+                                {option.name}
                               </option>
                             ))}
                           </select>
@@ -282,36 +320,40 @@ const AccountsComponent = () => {
         </span>
       </header>
       <section className="grid grid-cols-12 gap-5 justify-center px-6 py-12">
-        {data.length > 0 ? (
-          data?.map((user) => (
+        {allAccounts.length > 0 ? (
+          allAccounts?.map((banks) => (
             <div
-              key={user.id}
+              key={banks.id}
               className="xl:col-span-4 lg:col-span-4 md:col-span-6 sm:col-span-6 col-span-12 drop-shadow-sm border-[0.5px] border-neutral-50  shadow-xl p-4 rounded-lg bg-white"
             >
               <div className="flex justify-between  pb-3">
                 <span>
                   <div className="flex flex-col items-start  gap-3">
-                    <span className="uppercase bg-[#e9e9e9]  w-12 h-12 flex items-center font-bold justify-center rounded-full ">
-                      <Image src={access_logo} alt="bank logo" />
+                    <span className="uppercase bg-[#ebc7c7]  w-12 h-12 flex items-center font-bold justify-center rounded-full ">
+                      {banks.bankName
+                        .split(" ")
+                        .map((e) => e[0])
+                        .join("")
+                        .slice(0, 3)}
                     </span>
                     <span>
                       <Typography
                         variant="small"
                         className="capitalize text-lg font-bold text-neutral-900"
                       >
-                        {user.fullName}
+                        {banks.bankName}
                       </Typography>
                       <Typography
                         variant="small"
                         className=" text-base  text-neutral-600"
                       >
-                        Access Bank
+                        {banks.accountName}
                       </Typography>
                       <Typography
                         variant="small"
                         className=" text-base  text-neutral-600"
                       >
-                        083456278
+                        {banks.accountNumber}
                       </Typography>
                     </span>
                   </div>
@@ -342,7 +384,7 @@ const AccountsComponent = () => {
             </div>
           ))
         ) : (
-          <section className="px-6 py-3">{Empty}</section>
+          <section className="px-6 py-3 col-span-12">{Empty}</section>
         )}
       </section>
     </main>

@@ -21,7 +21,6 @@ export default function ForgotPasswordComponent() {
   const [email, setEmail] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
   const [generalMessage, setGeneralMessage] = useState("");
-
   const [successMessage, setSuccessMessage] = useState("");
 
   const router = useRouter();
@@ -59,15 +58,18 @@ export default function ForgotPasswordComponent() {
     try {
       const result = await forgotpassword(userData);
       if (await data) {
-        setGeneralMessage(`${data.message}, and has been sent to your email`);
+        setSuccessMessage(`${data.message}, and has been sent to your email`);
         setEmailMessage("");
+        setGeneralMessage("");
         setIsPending(false);
       }
 
-      setGeneralMessage(
+      setSuccessMessage(
         `${result.data.message}, and has been sent to your email`
       );
       setEmailMessage("");
+      setGeneralMessage("");
+
       setIsPending(false);
       setEmail("");
 

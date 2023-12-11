@@ -1,12 +1,13 @@
 /* eslint-disable react/jsx-key */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import axios from "axios";
+import dateFormat from "dateformat";
 
 import emptyIcon from "@/public/dashboard/icon.svg";
 import dummyData from "./dummyData.json";
-import Popup from "../components/Popup";
 
 import {
   Card,
@@ -21,16 +22,20 @@ import {
   DialogHeader,
   Dialog,
 } from "@material-tailwind/react";
+export { Card, CardHeader, Typography, CardBody, Chip, IconButton, Tooltip };
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
-import TextInput from "../components/Input";
 import Link from "next/link";
-export { Card, CardHeader, Typography, CardBody, Chip, IconButton, Tooltip };
-import fi_plus_add from "@/public/dashboard/fi_plus_add.svg";
+import { useSelector } from "react-redux";
 
+import { useRouter } from "next/navigation";
+
+// import TextInput from "../components/Input";
+
+import fi_plus_add from "@/public/dashboard/fi_plus_add.svg";
 import fi_wallet from "@/public/dashboard/fi_wallet.svg";
 import fi_arrow_up from "@/public/dashboard/fi_arrow_up_right.svg";
 import fi_check from "@/public/fi_check.svg";
@@ -40,22 +45,19 @@ import fi_loader from "@/public/fi_loader.svg";
 import fi_plus from "@/public/dashboard/fi_plus.svg";
 import fi_user_check from "@/public/dashboard/fi_user_check.svg";
 import fi_user_plus from "@/public/dashboard/fi_user_plus.svg";
-import { useSelector } from "react-redux";
 
 const TABLE_HEAD = ["Name", "Amount", "Narration", "Date", "Status", ""];
 
-// User
-
-function UserRow({ user, index }) {
-  const isLast = index === user.length - 1;
+function UserRow({ invoice, index }) {
+  const isLast = index === invoice?.length - 1;
   const classes = isLast ? "p-4" : "p-4 ";
 
   return (
-    <tr key={user.id}>
+    <tr key={invoice?.id}>
       <td className={classes}>
         <div className="flex items-center gap-3">
           <span className="uppercase bg-[#EB7B7B] text-[#580E0E] w-12 h-12 flex items-center justify-center rounded-full font-semibold">
-            {user?.fullName
+            {invoice?.invoice?.clientDetails?.fullName
               .split(" ")
               .map((e) => e[0])
               .join("")}
@@ -65,13 +67,13 @@ function UserRow({ user, index }) {
               variant="small"
               className="capitalize text-base font-bold text-neutral-900"
             >
-              {user.fullName}
+              {invoice?.invoice?.clientDetails?.fullName}
             </Typography>
             <Typography
               variant="small"
               className=" text-base font-semibold text-neutral-600"
             >
-              {user.email}
+              {invoice?.invoice?.clientDetails?.email}
             </Typography>
           </span>
         </div>
@@ -80,13 +82,10 @@ function UserRow({ user, index }) {
         <div className="flex items-center gap-3">
           <Typography
             variant="small"
-            className={
-              user.status === "paid"
-                ? "text-green-400 capitalize text-base font-semibold"
-                : "text-[#C29C17] capitalize text-base font-semibold"
-            }
+            className="capitalize text-base font-semibold text-neutral-700"
           >
-            {user.amountPaid}
+            {/* {invoice?.invoice?.invoice.description} */}
+            {formatNumber(invoice?.invoice?.invoice?.amount)}
           </Typography>
         </div>
       </td>
@@ -96,33 +95,46 @@ function UserRow({ user, index }) {
             variant="small"
             className="capitalize text-base font-semibold text-neutral-700"
           >
-            {`${user.narration}`}
+            {invoice?.invoice?.invoice.description}
           </Typography>
         </div>
       </td>
+
       <td className={classes}>
-        <Typography
-          variant="small"
-          className="capitalize text-base font-semibold text-neutral-700"
-        >
-          {user.createdAt}
-        </Typography>
+        <div className="flex items-center gap-3">
+          <Typography
+            variant="small"
+            className="capitalize text-base font-semibold text-neutral-700"
+          >
+            {dateFormat(invoice?.invoice?.invoice.createdAt, "shortDate")}
+          </Typography>
+        </div>
       </td>
 
       <td className={classes}>
         <span
           className={
-            user.status === "paid"
-              ? "text-green-400 capitalize text-base font-semibold"
-              : "text-[#C29C17] capitalize text-base font-semibold"
+            invoice?.invoice?.invoice.status === "paid"
+              ? "text-green-400  text-sm uppercase font-semibold"
+              : invoice?.invoice?.invoice.status === "pending"
+                ? "text-[#C29C17]  text-sm uppercase font-semibold"
+                : "text-[#B11C1C]  text-sm uppercase font-semibold py-2 px-3 rounded-full bg-red-50"
           }
         >
-          {user.status}
+          {invoice?.invoice?.invoice.status}
         </span>
       </td>
     </tr>
   );
 }
+
+const formatNumber = (number) => {
+  const formattedNumber = (number / 100).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return formattedNumber;
+};
 
 const MainSectionDashboard = () => {
   const style = {
@@ -131,7 +143,8 @@ const MainSectionDashboard = () => {
     left: "50%",
     transform: "translate(-50%, -50%)",
     borderRadius: 2,
-    width: "90%",
+    width: "100%",
+    maxWidth: "350px",
     bgcolor: "background.paper",
     border: ".5px solid #f2f2f2",
     boxShadow: 24,
@@ -139,6 +152,9 @@ const MainSectionDashboard = () => {
   };
 
   const [selectInvoiceType, setSelectInvoiceType] = useState("existing");
+  const router = useRouter();
+
+  // Modals States
   const [open, setOpen] = useState(false);
   const [openAccountModal, setOpenAccountModal] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -149,51 +165,170 @@ const MainSectionDashboard = () => {
 
   const data = dummyData.dummyData;
 
+  // Message notifications
   const [successMessage, setSuccessMessage] = useState("");
   const [generalMessage, setGeneralMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Client Modal Inputs States
   const [fullName, setFullName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [bankName, setBankName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [bankLists, setBankLists] = useState([]);
 
-  const [name, setName] = useState("");
-  // const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [clientId, setClientId] = useState("");
-  const [date, setDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [clientFullName, setClientFullName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
 
-  // check for clients
+  // check for clients and wallet from the store
+  const token = useSelector((state) => state.user.accessToken);
+  const invoices = useSelector((state) => state.invoices.invoices);
   const clients = useSelector((state) => state.clients.clients);
+  const wallet = useSelector((state) => state.user.user);
+
+  const handleInputChange = (setter) => (e) => {
+    setter(e.target.value);
+  };
+
+  const getAllBankNames = async () => {
+    try {
+      const response = await axios.get("https://api.paystack.co/bank");
+
+      if (Array.isArray(response.data.data)) {
+        setBankLists(response.data.data);
+      } else {
+        console.error("Response data is not an array:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching bank names:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAllBankNames();
+    // handleGetAllAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Helper function to handle API requests
+  const makeApiRequest = async (url, data) => {
+    try {
+      const response = await axios.post(url, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
+
+  // Helper function to handle API errors
+  const handleApiError = (error) => {
+    if (
+      error?.response?.data.message ===
+      "Failed to resolve and save account details"
+    ) {
+      setGeneralMessage(
+        "The account number does not match the associated bank name. Please review and verify the information"
+      );
+    } else if (
+      error?.response?.data.message === "Account number already exists"
+    ) {
+      setGeneralMessage("Account is already added");
+    } else if (error?.response?.data.message === "Unauthorized") {
+      localStorage.clear();
+      router.push("/auth/login");
+    }
+    setSuccessMessage("");
+    setIsLoading(false);
+  };
+
+  // Helper function to reset form fields and messages
+  const resetForm = () => {
+    setBankName("");
+    setAccountNumber("");
+    setSuccessMessage("");
+    setGeneralMessage("");
+    setIsLoading(false);
+  };
+
+  const createAccount = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const userData = {
+      bankName,
+      accountNumber,
+    };
+
+    try {
+      if (!bankName || !accountNumber) {
+        setGeneralMessage("All inputs are required to add an account");
+        setSuccessMessage("");
+        setIsLoading(false);
+        return false;
+      }
+
+      const response = await makeApiRequest(
+        `${process.env.NEXT_PUBLIC_BASE_URL}accounts`,
+        userData
+      );
+
+      dispatch(addAccount(response.data));
+
+      setSuccessMessage(response.message);
+      setGeneralMessage("");
+      setTimeout(() => {
+        setOpenAccountModal(false);
+      }, 2000);
+      resetForm();
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
 
   const handleBankChange = (event) => {
     setBankName(event.target.value);
   };
 
   // Create Invoice
-  const handleCreateInvoice = async (e) => {
+  const createInvoice = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!description || !amount || !clientId || !date) {
-      setGeneralMessage("All inputs are required to add an invoice");
-      setSuccessMessage("");
-      setIsLoading(false);
-      return false;
-    }
-    // Note, create an arguement to let the axios function know when a client is selected or addingn a new client.
-    const userData = {
-      description,
-      amount,
-      date,
-    };
+    const url = selectInvoiceType === "existing" ? `?clientId=${clientId}` : "";
+
+    // console.log("Invoice Created");
 
     try {
+      const userData =
+        selectInvoiceType === "existing"
+          ? { description, amount, dueDate }
+          : {
+              description,
+              amount,
+              dueDate,
+              clientFullName,
+              clientEmail,
+              clientPhone,
+            };
+
+      if (Object.keys(userData).length === 0) {
+        setGeneralMessage("All inputs are required to add an invoice");
+        setSuccessMessage("");
+        setIsLoading(false);
+        return false;
+      }
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}invoices/${clientId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}invoices${url}`,
         userData,
         {
           headers: {
@@ -201,27 +336,34 @@ const MainSectionDashboard = () => {
           },
         }
       );
-      handleGetAllInvoices();
-      setSuccessMessage("Client added successfully");
-      // console.log("creating client", response.data);
-      dispatch(addClient(response.data));
-      setGeneralMessage("");
-      setFullName("");
-      setEmail("");
-      setPhone("");
+
+      setSuccessMessage("Invoice created successfully");
+      // Assuming addClient is an action to update the state with the new invoice
+      dispatch(addInvoice(response.data));
+      resetForm();
       setIsLoading(false);
+      setOpen(false);
       setTimeout(() => {
-        setOpen(false);
+        setOpen(!open);
       }, 2000);
     } catch (error) {
-      if (error.message === "Request failed with status code 401") {
-        setGeneralMessage("Unauthorized! User not logged in");
-        localStorage.clear();
-        return router.push("/auth/login");
-      }
+      handleErrorResponse(error);
+    }
+  };
+
+  const handleErrorResponse = (error) => {
+    if (error.message === "Request failed with status code 401") {
+      handleUnauthorizedError();
+    } else {
       setSuccessMessage("");
       setIsLoading(false);
     }
+  };
+
+  const handleUnauthorizedError = () => {
+    setGeneralMessage("Unauthorized! User not logged in");
+    localStorage.clear();
+    router.push("/auth/login");
   };
 
   // Create new client
@@ -243,24 +385,35 @@ const MainSectionDashboard = () => {
     };
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}clients`, userData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      handleGetAllClients();
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_URL}clients`,
+        userData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       setSuccessMessage("Client added successfully");
+      // console.log("creating client", response.data);
+      dispatch(addClient(response.data));
+      setTimeout(() => {
+        setSuccessMessage("Client added successfully");
+        setOpenModal(false);
+      }, 2000);
       setGeneralMessage("");
       setFullName("");
       setEmail("");
       setPhone("");
       setIsLoading(false);
-      setTimeout(() => {
-        setOpen(false);
-      }, 2000);
     } catch (error) {
-      if (error.message === "Request failed with status code 401") {
+      if (error?.response?.data.message === "Client profile already exists") {
+        setGeneralMessage("Client profile already exists");
+        setIsLoading(false);
+      } else if (error.message === "Request failed with status code 401") {
         setGeneralMessage("Unauthorized! User not logged in");
+        setIsLoading(false);
         localStorage.clear();
         return router.push("/auth/login");
       }
@@ -268,6 +421,128 @@ const MainSectionDashboard = () => {
       setIsLoading(false);
     }
   };
+
+  // Invoice Render Section
+  const renderClientInfo = () => (
+    <>
+      <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
+        CLIENT&apos;S INFO
+      </p>
+      {selectInvoiceType === "existing" ? (
+        <section>
+          <label className="text-sm text-neutral-600">
+            Client
+            <select
+              className="w-full py-3 px-3 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+              value={clientId}
+              onChange={handleInputChange(setClientId)}
+            >
+              <option>Select a client</option>
+              {clients &&
+                clients?.map((client) => (
+                  <option key={client.id} value={client.id}>
+                    {client.fullName}
+                  </option>
+                ))}
+            </select>
+          </label>
+        </section>
+      ) : (
+        <>
+          <label className="text-sm text-neutral-600 mb-2">
+            Client&apos;s name{" "}
+            <input
+              type="text"
+              className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+              placeholder="Enter the client's name"
+              value={clientFullName}
+              onChange={handleInputChange(setClientFullName)}
+              required
+            />
+          </label>
+          <div className="my-3">
+            <label className="text-sm text-neutral-600">
+              Email address
+              <input
+                type="email"
+                className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                placeholder="Enter the email address"
+                value={clientEmail}
+                onChange={handleInputChange(setClientEmail)}
+                required
+              />
+            </label>
+          </div>
+          <div className="my-3">
+            <label className="text-sm text-neutral-600">
+              Phone number
+              <input
+                type="number"
+                className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                placeholder="Enter the phone number"
+                value={clientPhone}
+                onChange={handleInputChange(setClientPhone)}
+                required
+              />
+            </label>
+          </div>
+        </>
+      )}
+    </>
+  );
+
+  const renderTaskInfo = () => (
+    <div className="my-8">
+      <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
+        TASK INFO
+      </p>
+      <div className="my-3">
+        <label className="text-sm text-neutral-600">
+          Task name
+          <input
+            type="text"
+            className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+            placeholder="Enter the name of the task"
+            value={description}
+            onChange={handleInputChange(setDescription)}
+            required
+          />
+        </label>
+      </div>
+      <div className="my-3">
+        <label className="text-sm text-neutral-600">
+          Amount charged
+          <input
+            type="number"
+            className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+            placeholder="Enter the amount for this task"
+            value={amount}
+            onChange={handleInputChange(setAmount)}
+            required
+          />
+        </label>
+      </div>
+    </div>
+  );
+
+  const renderTimeline = () => (
+    <div className="my-4">
+      <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
+        TIMELINE
+      </p>
+      <label className="text-sm text-neutral-600">
+        Due Date
+        <input
+          type="date"
+          value={dueDate}
+          onChange={handleInputChange(setDueDate)}
+          placeholder="Enter the name of the task"
+          className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+          required
+        />
+      </label>
+    </div>
+  );
 
   return (
     <main className="bg-neutral-100 min-h-screen pb-8">
@@ -367,230 +642,53 @@ const MainSectionDashboard = () => {
 
                 <section>
                   <div className="my-6">
-                    {selectInvoiceType === "existing" ? (
-                      <>
-                        <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
-                          CLIENT&apos;S INFO
-                        </p>
-
-                        <section>
-                          <label className="text-sm text-neutral-600">
-                            Client
-                            <select
-                              className=" w-full py-3 px-3 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500 "
-                              value={clientId}
-                              onChange={(e) => {
-                                setClientId(e.target.value);
-                              }}
-
-                              // labelProps={{
-                              //   className: "hidden",
-                              // }}
-                            >
-                              <option>Select a client</option>
-                              {clients &&
-                                clients?.map((client) => (
-                                  <option key={client.id} value={client.id}>
-                                    {client.fullName}
-                                  </option>
-                                ))}
-                            </select>
-                          </label>
-                        </section>
-                        {/* task */}
-                        <div className="my-8">
-                          <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
-                            TASK INFO
-                          </p>
-                          <div className="my-3">
-                            <label className="text-sm  text-neutral-600">
-                              Task name
-                              <input
-                                type="text"
-                                className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                                placeholder="Enter the name of the task"
-                                required
-                              />
-                            </label>
-                          </div>
-                          <div className="my-3">
-                            <label className="text-sm  text-neutral-600">
-                              Amount charged
-                              <input
-                                type="number"
-                                className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                                placeholder="Enter the amount for this task"
-                                required
-                              />
-                            </label>
-                          </div>
-                        </div>
-                        {/* Add another task */}
-                        {/* <button className="flex items-center justify-center font-bold text-neutral-900 gap-2">
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M10 4.16699V15.8337"
-                            stroke="black"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                    {renderClientInfo()}
+                    {renderTaskInfo()}
+                    {renderTimeline()}
+                    <p
+                      className={
+                        generalMessage
+                          ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                          : "hidden my-2"
+                      }
+                    >
+                      <Image src={error_outline} alt="loader" className="" />
+                      {generalMessage}
+                    </p>
+                    <p
+                      className={
+                        successMessage
+                          ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                          : "hidden my-2"
+                      }
+                    >
+                      <Image src={fi_check} alt="loader" className="" />
+                      {successMessage}
+                    </p>
+                    <button
+                      className={`${
+                        isLoading
+                          ? "disabled w-full mt-8 bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
+                          : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8"
+                      }`}
+                      onClick={createInvoice}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <div className="flex justify-center items-center">
+                          <Image
+                            src={fi_loader}
+                            alt="loader"
+                            className="animate-spin"
                           />
-                          <path
-                            d="M4.16675 10H15.8334"
-                            stroke="black"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                        Add another task
-                      </button> */}
-                        {/* Add another task */}
-                        {/* Time Line */}
-                        <div className="my-4">
-                          <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
-                            TIMELINE
-                          </p>
-                          <label className="text-sm  text-neutral-600">
-                            Due Date
-                            <TextInput
-                              variant="outlined"
-                              type="date"
-                              value={date}
-                              onChange={(e) => setDate(e.target.value)}
-                              placeholder="Enter the name of the task"
-                              required
-                            />
-                          </label>
+                          Sending...
                         </div>
-                        <button className="bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8">
-                          Send Now
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
-                          CLIENT&apos;S INFO
-                        </p>
-                        <label className="text-sm  text-neutral-600 mb-2">
-                          Client&apos;s name
-                          <input
-                            type="text"
-                            className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                            placeholder="Enter the name of the task"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                          />
-                        </label>
-                        <div className="my-3">
-                          <label className="text-sm  text-neutral-600 ">
-                            Email address
-                            <input
-                              type="email"
-                              className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                              placeholder="Enter the name of the task"
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                              required
-                            />
-                          </label>
-                        </div>
-
-                        {/* task */}
-                        <div className="my-4">
-                          <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
-                            TASK INFO
-                          </p>
-                          <div className="my-3">
-                            <label className="text-sm  text-neutral-600">
-                              Task name
-                              <input
-                                type="text"
-                                className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                                placeholder="Enter the name of the task"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                required
-                              />
-                            </label>
-                          </div>
-                          <div className="my-3">
-                            <label className="text-sm  text-neutral-600">
-                              Amount charged
-                              <input
-                                type="number"
-                                className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                                placeholder="Enter the amount for this task"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                required
-                              />
-                            </label>
-                          </div>
-                        </div>
-                        {/* Add another task */}
-                        {/* <button className="flex items-center justify-center font-bold text-neutral-900 gap-2">
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M10 4.16699V15.8337"
-                            stroke="black"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M4.16675 10H15.8334"
-                            stroke="black"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                        Add another task
-                      </button> */}
-                        {/* Add another task */}
-                        {/* Time Line */}
-                        <div className="my-3">
-                          <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
-                            TIMELINE
-                          </p>
-                          <label className="text-sm  text-neutral-600">
-                            Due Date
-                            <TextInput
-                              variant="outlined"
-                              type="date"
-                              value={date}
-                              onChange={(e) => setDate(e.target.value)}
-                              placeholder="Enter the name of the task"
-                              required
-                            />
-                          </label>
-                        </div>
-                        <button className="bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8">
-                          Send Now
-                        </button>
-                      </>
-                    )}
+                      ) : (
+                        "Send Now"
+                      )}
+                    </button>
                   </div>
                   {/* Option two */}
-                  {/* <div className="my-6">
-         {selectInputTwo && (
-          
-          )} 
-        </div> */}
                 </section>
               </div>
             </DialogBody>
@@ -614,7 +712,9 @@ const MainSectionDashboard = () => {
           </span>
           {/* wallet section */}
           <div className="mt-4">
-            <p className="text-3xl text-neutral-900 font-bold">₦342,153.63</p>
+            <p className="text-3xl text-neutral-900 font-bold">
+              ₦{formatNumber(wallet?.balance?.amount)}
+            </p>
             <p className="text-sm text-neutral-700 font-bold flex items-center gap-2 my-4">
               <span>Wallet:</span>
               <Image src={fi_wallet} width={20} height={20} alt="Arrow Up" />
@@ -796,7 +896,7 @@ const MainSectionDashboard = () => {
             >
               <Box sx={style}>
                 <span className="flex justify-between items-center">
-                  <p className="text-xl text-gray-900 font-bold mb-3">
+                  <p className="lg:text-xl text-sm text-gray-900 font-bold mb-3">
                     Add new bank account
                   </p>
                   <buttton
@@ -818,23 +918,26 @@ const MainSectionDashboard = () => {
                         <div className="my-3">
                           <label className="text-sm  text-neutral-600">
                             Bank
-                            <Select
+                            <select
                               labelId="demo-select-small-label"
                               id="demo-select-small"
-                              className="w-full px-2 border-[.5px] py-[-10px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                              // className="w-full !px-2  !border-neutral-300 !rounded-lg !focus:outline-blue-500"
+                              className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
                               value={bankName}
                               label="Bank Name"
                               onChange={handleBankChange}
-                              inputProps={{ "aria-label": "Without label" }}
+                              // inputProps={{ "aria-label": "Without label" }}
                               labelProps={{
                                 className:
                                   "before:content-none after:content-none",
                               }}
                             >
-                              <MenuItem value={1}>Access Bank</MenuItem>
-                              <MenuItem value={2}>Zenith Bank</MenuItem>
-                              <MenuItem value={3}>GTB</MenuItem>
-                            </Select>
+                              {bankLists?.map((option) => (
+                                <option key={option.id} value={option.name}>
+                                  {option.name}
+                                </option>
+                              ))}
+                            </select>
                           </label>
                         </div>
                         <div className="my-3">
@@ -843,7 +946,7 @@ const MainSectionDashboard = () => {
                             <input
                               type="number"
                               className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                              placeholder="Enter the client/business email "
+                              placeholder="Enter account number"
                               required
                               value={accountNumber}
                               onChange={(e) => setAccountNumber(e.target.value)}
@@ -875,10 +978,10 @@ const MainSectionDashboard = () => {
                       <button
                         className={
                           isLoading
-                            ? " disabled w-full mt-8  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
-                            : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8"
+                            ? " disabled w-full mt-3  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
+                            : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-3"
                         }
-                        onClick={handleCreateClient}
+                        onClick={createAccount}
                       >
                         {isLoading ? (
                           <div className="flex justify-center items-center ">
@@ -895,8 +998,6 @@ const MainSectionDashboard = () => {
                       </button>
                     </>
                   </form>
-                  {/* Option two */}
-                  <div className="my-3"></div>
                 </section>
               </Box>
             </Modal>
@@ -915,7 +1016,7 @@ const MainSectionDashboard = () => {
                 <span className=" flex justify-between items-center mb-6">
                   {" "}
                   <span className="text-lg text-neutral-900 capitalize font-bold">
-                    Recent transactions
+                    Recently{" "}
                   </span>
                   <span className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1">
                     <Link href="/dashboard/transactions"> view All </Link>
@@ -941,12 +1042,10 @@ const MainSectionDashboard = () => {
                   </thead>
 
                   <tbody>
-                    {data.length > 0 &&
-                      data
-                        ?.filter((item) => item.status === "paid")
-                        ?.map((item, index) => (
-                          <UserRow user={item} index={index} />
-                        ))}
+                    {invoices.length > 0 &&
+                      invoices?.map((item, index) => (
+                        <UserRow invoice={item} index={index} />
+                      ))}
                   </tbody>
                 </table>
               </CardBody>
@@ -956,7 +1055,7 @@ const MainSectionDashboard = () => {
 
             {/* header */}
 
-            <Card className=" mx-5 px-6 py-8 mb-8 shadow={false}">
+            {/* <Card className=" mx-5 px-6 py-8 mb-8 shadow={false}">
               <CardHeader
                 floated={false}
                 shadow={false}
@@ -1000,7 +1099,7 @@ const MainSectionDashboard = () => {
                   </tbody>
                 </table>
               </CardBody>
-            </Card>
+            </Card> */}
           </>
         ) : (
           <div className="flex justify-center flex-col items-center py-12 px-6">

@@ -10,7 +10,7 @@ const accountSlice = createSlice({
       state.accounts = action.payload;
     },
     addAccount: (state, action) => {
-      state.acountts.push(action.payload);
+      state.accounts.push(action.payload);
     },
     editAccount: (state, action) => {
       const { accountId, updatedAccount } = action.payload;
@@ -29,6 +29,6 @@ const accountSlice = createSlice({
   },
 });
 
-export const { addAccount, editAccount, deleteAccount, dispatchCAccounts } =
+export const { addAccount, editAccount, deleteAccount, dispatchAccounts } =
   accountSlice.actions;
 export default accountSlice.reducer;
