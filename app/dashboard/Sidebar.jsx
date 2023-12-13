@@ -28,8 +28,6 @@ const Sidebar = () => {
       router.push("/auth/login");
       dispatch(dispatchLogout());
       localStorage.clear();
-    } else {
-      router.push("/dashboard");
     }
   }, [token, router, dispatch]);
 
