@@ -11,7 +11,7 @@ const SettingsComponent = () => {
   const user = useSelector((state) => state.user.user);
 
   const [tabs, setTabs] = useState(1);
-  const [fullName, setFullName] = useState(user?.fullName);
+  const [fullName, setFullName] = useState(user?.fullName || "");
   const [email, setEmail] = useState(user?.email);
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -61,7 +61,7 @@ const SettingsComponent = () => {
             <form className="rounded-xl bg-white shadow-lg p-10 h-fit">
               <div className="border-b-[1px] border-neutral-200 flex pb-3 items-center gap-4">
                 <span className="rounded-full uppercase text-[40px] text-green-700 bg-green-100 p-3">
-                  {user?.fullName
+                  {fullName
                     .split(" ")
                     .map((e) => e[0])
                     .join("")}
