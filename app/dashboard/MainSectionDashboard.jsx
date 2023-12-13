@@ -5,6 +5,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import axios from "axios";
 import dateFormat from "dateformat";
+import { useDispatch } from "react-redux";
 
 import emptyIcon from "@/public/dashboard/icon.svg";
 import dummyData from "./dummyData.json";
@@ -25,8 +26,6 @@ import {
 export { Card, CardHeader, Typography, CardBody, Chip, IconButton, Tooltip };
 import Modal from "@mui/material/Modal";
 import Box from "@mui/material/Box";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 
 import Link from "next/link";
 import { useSelector } from "react-redux";
@@ -45,6 +44,8 @@ import fi_loader from "@/public/fi_loader.svg";
 import fi_plus from "@/public/dashboard/fi_plus.svg";
 import fi_user_check from "@/public/dashboard/fi_user_check.svg";
 import fi_user_plus from "@/public/dashboard/fi_user_plus.svg";
+import { addInvoice } from "../utils/redux/invoiceSlice";
+import { dispatchUser } from "../utils/redux/userSlice";
 
 const TABLE_HEAD = ["Name", "Amount", "Narration", "Date", "Status", ""];
 
@@ -84,8 +85,7 @@ function UserRow({ invoice, index }) {
             variant="small"
             className="capitalize text-base font-semibold text-neutral-700"
           >
-            {/* {invoice?.invoice?.invoice.description} */}
-            {formatNumber(invoice?.invoice?.invoice?.amount)}
+            ₦{formatNumber(invoice?.invoice?.invoice?.amount)}
           </Typography>
         </div>
       </td>
@@ -153,6 +153,7 @@ const MainSectionDashboard = () => {
 
   const [selectInvoiceType, setSelectInvoiceType] = useState("existing");
   const router = useRouter();
+  const dispatch = useDispatch();
 
   // Modals States
   const [open, setOpen] = useState(false);
@@ -178,6 +179,8 @@ const MainSectionDashboard = () => {
   const [phone, setPhone] = useState("");
   const [bankLists, setBankLists] = useState([]);
 
+  const [userProfile, setUserProfile] = useState([]);
+
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [clientId, setClientId] = useState("");
@@ -190,7 +193,7 @@ const MainSectionDashboard = () => {
   const token = useSelector((state) => state.user.accessToken);
   const invoices = useSelector((state) => state.invoices.invoices);
   const clients = useSelector((state) => state.clients.clients);
-  const wallet = useSelector((state) => state.user.user);
+  // const wallet = useSelector((state) => state.user.user);
 
   const handleInputChange = (setter) => (e) => {
     setter(e.target.value);
@@ -298,6 +301,34 @@ const MainSectionDashboard = () => {
   const handleBankChange = (event) => {
     setBankName(event.target.value);
   };
+
+  const getProfile = async () => {
+    try {
+      const result = await axios.get(
+        `${process.env.NEXT_PUBLIC_BASE_URL}users/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      dispatch(dispatchUser(result.data.user));
+      const walletBalanceAmount = parseFloat(
+        result?.data?.user?.wallet?.balance?.amount
+      );
+      setUserProfile(walletBalanceAmount);
+
+      // setIsPending(false);
+    } catch (error) {
+      console.error(`${error.message}`);
+    }
+  };
+
+  useEffect(() => {
+    getProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Create Invoice
   const createInvoice = async (e) => {
@@ -696,320 +727,365 @@ const MainSectionDashboard = () => {
         </span>
       </header>
 
-      <section className="py-[17px] px-5 justify-center items-center lg:grid lg:grid-cols-12 lg:gap-[10px] block scroll-smooth whitespace-nowrap  overflow-x-scroll scrollbar-hide snap-x snap-mandatory ">
-        {/* one */}
-        <div className="xl:col-span-3 lg:col-span-4  md:col-span-3 w-full  inline-block self-center mx-1  rounded-lg border-neutral-50 bg-white border-[1px] px-5 py-[30px] snap-center">
-          {" "}
-          <span className=" flex justify-between items-center border-b-[1px] border-gray-100">
-            {" "}
-            <span className="text-base text-neutral-700 uppercase font-bold">
-              Balance
-            </span>
-            <span className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1">
-              <span> Withdraw </span>
-              <Image src={fi_arrow_up} alt="Arrow Up" />
-            </span>
-          </span>
-          {/* wallet section */}
-          <div className="mt-4">
-            <p className="text-3xl text-neutral-900 font-bold">
-              ₦{formatNumber(wallet?.balance?.amount)}
-            </p>
-            <p className="text-sm text-neutral-700 font-bold flex items-center gap-2 my-4">
-              <span>Wallet:</span>
-              <Image src={fi_wallet} width={20} height={20} alt="Arrow Up" />
-            </p>
-          </div>
-        </div>
-        {/* two */}
-        <div className="xl:col-span-6 lg:col-span-4 md:col-span-3 w-full  inline-block self-center mx-1  rounded-lg border-neutral-50 bg-white border-[1px] px-5 py-[30px] snap-center">
-          <span className=" flex justify-between items-center border-b-[1px] border-gray-100">
-            {" "}
-            <span className="text-base text-neutral-700 uppercase font-bold">
-              Clients
-            </span>
-            <button className="text-base cursor-pointer text-[#5162FF] capitalize font-bold flex items-center gap-1">
-              <Link href="dashboard/clients"> View all </Link>
-              <Image src={fi_arrow_up} width={20} height={20} alt="Arrow Up" />
-            </button>
-          </span>
+      {/* ----------------------------------------------- Sample -----------------------------------------------*/}
 
-          <div className="flex items-center flex-col justify-center my-4">
-            <button className="cursor-pointer" onClick={handleOpenModal}>
-              <Image
-                src={fi_plus_add}
-                width={52}
-                height={52}
-                alt="add button"
-              />
-            </button>
-            <span className="text-sm text-neutral-900 mt-2 font-semibold">
-              Add new
-            </span>
-          </div>
-          <Modal
-            open={openModal}
-            onClose={handleOpenModal}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <span className="flex justify-between items-center">
-                <p className="text-xl text-gray-900 font-bold mb-3">
-                  Add new client
-                </p>
-                <buttton onClick={handleOpenModal} className="cursor-pointer">
-                  <Image src={fi_x} alt="close button" />
-                </buttton>
-              </span>
-              <section>
-                <form className="my-3">
-                  <>
-                    <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
-                      CLIENT INFO
-                    </p>
-
-                    {/* task */}
-                    <div className="my-6">
-                      <div className="my-3">
-                        <label className="text-sm  text-neutral-600">
-                          Client/Business name
-                          <input
-                            type="text"
-                            className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                            placeholder="Enter the client/business name"
-                            required
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                          />
-                        </label>
-                      </div>
-                      <div className="my-3">
-                        <label className="text-sm  text-neutral-600">
-                          Email address
-                          <input
-                            type="email"
-                            className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                            placeholder="Enter the client/business email "
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
-                        </label>
-                      </div>
-                      <div className="my-3">
-                        <label className="text-sm  text-neutral-600">
-                          Phone number
-                          <input
-                            type="number"
-                            className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                            placeholder="Enter phone number here"
-                            required
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                    <p
-                      className={
-                        successMessage
-                          ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
-                          : "hidden my-2"
-                      }
-                    >
-                      <Image src={fi_check} alt="loader" className="" />
-                      {successMessage}
-                    </p>
-                    <p
-                      className={
-                        generalMessage
-                          ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
-                          : "hidden my-2"
-                      }
-                    >
-                      <Image src={error_outline} alt="loader" className="" />
-                      {generalMessage}
-                    </p>
-
-                    <button
-                      className={
-                        isLoading
-                          ? " disabled w-full mt-8  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
-                          : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8"
-                      }
-                      onClick={handleCreateClient}
-                    >
-                      {isLoading ? (
-                        <div className="flex justify-center items-center ">
-                          <Image
-                            src={fi_loader}
-                            alt="loader"
-                            className="animate-spin"
-                          />
-                          Saving...
-                        </div>
-                      ) : (
-                        "Save"
-                      )}
-                    </button>
-                  </>
-                </form>
-                {/* Option two */}
-                <div className="my-3"></div>
-              </section>
-            </Box>
-          </Modal>
-        </div>
-        {/* three */}
-        <div className="xl:col-span-3 lg:col-span-4 md:col-span-3 w-full  inline-block self-center mx-1  rounded-lg border-neutral-50 bg-white border-[1px] px-5 py-[30px] snap-center">
-          <span className=" flex justify-between items-center border-b-[1px] border-gray-100">
-            {" "}
-            <span className="text-base text-neutral-700 uppercase font-bold">
-              Account
-            </span>
-            <Link
-              href="/dashboard/accounts"
-              className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1"
-            >
-              <span> View all </span>
-              <Image src={fi_arrow_up} width={20} height={20} alt="Arrow Up" />
-            </Link>
-          </span>
-          <div className="flex items-center flex-col justify-center my-4">
-            <button onClick={handleAccountModal} className="cursor-pointer">
-              <Image
-                src={fi_plus_add}
-                width={52}
-                height={52}
-                alt="add button"
-              />
-            </button>
-            <span className="text-sm text-neutral-900 mt-2 font-semibold">
-              Add new
-            </span>
-            <Modal
-              open={openAccountModal}
-              onClose={handleAccountModal}
-              aria-labelledby="modal-modal-title"
-              aria-describedby="modal-modal-description"
-            >
-              <Box sx={style}>
-                <span className="flex justify-between items-center">
-                  <p className="lg:text-xl text-sm text-gray-900 font-bold mb-3">
-                    Add new bank account
+      <div className="mx-auto py-[17px] px-2">
+        {/* Slide-in Children on Mobile Screens */}
+        <div className="  mt-4 overflow-x-scroll scroll-smooth whitespace-nowrap snap-x snap-mandatory scrollbar-hide mx-auto py-[17px] px-3">
+          <div className="flex lg:grid lg:grid-cols-12 lg:gap-3 sm:flex">
+            <div className="min-w-full p-4 inline-block xl:col-span-3 lg:col-span-4 md:col-span-4 snap-center mx-1  rounded-lg border-neutral-50 bg-white border-[1px] px-5 py-[30px]">
+              <div>
+                {" "}
+                <span className=" flex justify-between items-center border-b-[1px] border-gray-100">
+                  {" "}
+                  <span className="text-base text-neutral-700 uppercase font-bold">
+                    Balance
+                  </span>
+                  <span className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1">
+                    <span> Withdraw </span>
+                    <Image src={fi_arrow_up} alt="Arrow Up" />
+                  </span>
+                </span>
+                {/* wallet section */}
+                <div className="mt-4">
+                  <p className="text-3xl text-neutral-900 font-bold">
+                    ₦{formatNumber(userProfile)}
                   </p>
-                  <buttton
+                  <p className="text-sm text-neutral-700 font-bold flex items-center gap-2 my-4">
+                    <span>Wallet:</span>
+                    <Image
+                      src={fi_wallet}
+                      width={20}
+                      height={20}
+                      alt="Arrow Up"
+                    />
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="min-w-full p-4 inline-block xl:col-span-6 lg:col-span-4 md:col-span-4 snap-center mx-1  rounded-lg border-neutral-50 bg-white border-[1px] px-5 py-[30px]">
+              <div>
+                <span className=" flex justify-between items-center border-b-[1px] border-gray-100">
+                  {" "}
+                  <span className="text-base text-neutral-700 uppercase font-bold">
+                    Clients
+                  </span>
+                  <button className="text-base cursor-pointer text-[#5162FF] capitalize font-bold flex items-center gap-1">
+                    <Link href="dashboard/clients"> View all </Link>
+                    <Image
+                      src={fi_arrow_up}
+                      width={20}
+                      height={20}
+                      alt="Arrow Up"
+                    />
+                  </button>
+                </span>
+
+                <div className="flex items-center flex-col justify-center my-4">
+                  <button className="cursor-pointer" onClick={handleOpenModal}>
+                    <Image
+                      src={fi_plus_add}
+                      width={52}
+                      height={52}
+                      alt="add button"
+                    />
+                  </button>
+                  <span className="text-sm text-neutral-900 mt-2 font-semibold">
+                    Add new
+                  </span>
+                </div>
+                <Modal
+                  open={openModal}
+                  onClose={handleOpenModal}
+                  aria-labelledby="modal-modal-title"
+                  aria-describedby="modal-modal-description"
+                >
+                  <Box sx={style}>
+                    <span className="flex justify-between items-center">
+                      <p className="text-xl text-gray-900 font-bold mb-3">
+                        Add new client
+                      </p>
+                      <buttton
+                        onClick={handleOpenModal}
+                        className="cursor-pointer"
+                      >
+                        <Image src={fi_x} alt="close button" />
+                      </buttton>
+                    </span>
+                    <section>
+                      <form className="my-3">
+                        <>
+                          <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
+                            CLIENT INFO
+                          </p>
+
+                          {/* task */}
+                          <div className="my-6">
+                            <div className="my-3">
+                              <label className="text-sm  text-neutral-600">
+                                Client/Business name
+                                <input
+                                  type="text"
+                                  className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                                  placeholder="Enter the client/business name"
+                                  required
+                                  value={fullName}
+                                  onChange={(e) => setFullName(e.target.value)}
+                                />
+                              </label>
+                            </div>
+                            <div className="my-3">
+                              <label className="text-sm  text-neutral-600">
+                                Email address
+                                <input
+                                  type="email"
+                                  className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                                  placeholder="Enter the client/business email "
+                                  required
+                                  value={email}
+                                  onChange={(e) => setEmail(e.target.value)}
+                                />
+                              </label>
+                            </div>
+                            <div className="my-3">
+                              <label className="text-sm  text-neutral-600">
+                                Phone number
+                                <input
+                                  type="number"
+                                  className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                                  placeholder="Enter phone number here"
+                                  required
+                                  value={phone}
+                                  onChange={(e) => setPhone(e.target.value)}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                          <p
+                            className={
+                              successMessage
+                                ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                                : "hidden my-2"
+                            }
+                          >
+                            <Image src={fi_check} alt="loader" className="" />
+                            {successMessage}
+                          </p>
+                          <p
+                            className={
+                              generalMessage
+                                ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                                : "hidden my-2"
+                            }
+                          >
+                            <Image
+                              src={error_outline}
+                              alt="loader"
+                              className=""
+                            />
+                            {generalMessage}
+                          </p>
+
+                          <button
+                            className={
+                              isLoading
+                                ? " disabled w-full mt-8  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
+                                : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8"
+                            }
+                            onClick={handleCreateClient}
+                          >
+                            {isLoading ? (
+                              <div className="flex justify-center items-center ">
+                                <Image
+                                  src={fi_loader}
+                                  alt="loader"
+                                  className="animate-spin"
+                                />
+                                Saving...
+                              </div>
+                            ) : (
+                              "Save"
+                            )}
+                          </button>
+                        </>
+                      </form>
+                      {/* Option two */}
+                      <div className="my-3"></div>
+                    </section>
+                  </Box>
+                </Modal>
+              </div>
+            </div>
+            <div className="min-w-full p-4 inline-block xl:col-span-3 lg:col-span-4 md:col-span-4 snap-center mx-1  rounded-lg border-neutral-50 bg-white border-[1px] px-5 py-[30px]">
+              <div>
+                <span className=" flex justify-between items-center border-b-[1px] border-gray-100">
+                  {" "}
+                  <span className="text-base text-neutral-700 uppercase font-bold">
+                    Account
+                  </span>
+                  <Link
+                    href="/dashboard/accounts"
+                    className="text-base text-[#5162FF] capitalize font-bold flex items-center gap-1"
+                  >
+                    <span> View all </span>
+                    <Image
+                      src={fi_arrow_up}
+                      width={20}
+                      height={20}
+                      alt="Arrow Up"
+                    />
+                  </Link>
+                </span>
+                <div className="flex items-center flex-col justify-center my-4">
+                  <button
                     onClick={handleAccountModal}
                     className="cursor-pointer"
                   >
-                    <Image src={fi_x} alt="close button" />
-                  </buttton>
-                </span>
-                <section>
-                  <form className="my-3">
-                    <>
-                      <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
-                        ACCOUNT INFO
-                      </p>
+                    <Image
+                      src={fi_plus_add}
+                      width={52}
+                      height={52}
+                      alt="add button"
+                    />
+                  </button>
+                  <span className="text-sm text-neutral-900 mt-2 font-semibold">
+                    Add new
+                  </span>
+                  <Modal
+                    open={openAccountModal}
+                    onClose={handleAccountModal}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                  >
+                    <Box sx={style}>
+                      <span className="flex justify-between items-center">
+                        <p className="lg:text-xl text-sm text-gray-900 font-bold mb-3">
+                          Add new bank account
+                        </p>
+                        <buttton
+                          onClick={handleAccountModal}
+                          className="cursor-pointer"
+                        >
+                          <Image src={fi_x} alt="close button" />
+                        </buttton>
+                      </span>
+                      <section>
+                        <form className="my-3">
+                          <>
+                            <p className="text-neutral-900 uppercase text-sm font-bold mb-3">
+                              ACCOUNT INFO
+                            </p>
 
-                      {/* task */}
-                      <div className="my-6">
-                        <div className="my-3">
-                          <label className="text-sm  text-neutral-600">
-                            Bank
-                            <select
-                              labelId="demo-select-small-label"
-                              id="demo-select-small"
-                              // className="w-full !px-2  !border-neutral-300 !rounded-lg !focus:outline-blue-500"
-                              className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                              value={bankName}
-                              label="Bank Name"
-                              onChange={handleBankChange}
-                              // inputProps={{ "aria-label": "Without label" }}
-                              labelProps={{
-                                className:
-                                  "before:content-none after:content-none",
-                              }}
+                            {/* task */}
+                            <div className="my-6">
+                              <div className="my-3">
+                                <label className="text-sm  text-neutral-600">
+                                  Bank
+                                  <select
+                                    labelId="demo-select-small-label"
+                                    id="demo-select-small"
+                                    // className="w-full !px-2  !border-neutral-300 !rounded-lg !focus:outline-blue-500"
+                                    className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                                    value={bankName}
+                                    label="Bank Name"
+                                    onChange={handleBankChange}
+                                    // inputProps={{ "aria-label": "Without label" }}
+                                    labelProps={{
+                                      className:
+                                        "before:content-none after:content-none",
+                                    }}
+                                  >
+                                    {bankLists?.map((option) => (
+                                      <option
+                                        key={option.id}
+                                        value={option.name}
+                                      >
+                                        {option.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
+                              </div>
+                              <div className="my-3">
+                                <label className="text-sm  text-neutral-600">
+                                  Account number
+                                  <input
+                                    type="number"
+                                    className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
+                                    placeholder="Enter account number"
+                                    required
+                                    value={accountNumber}
+                                    onChange={(e) =>
+                                      setAccountNumber(e.target.value)
+                                    }
+                                  />
+                                </label>
+                              </div>
+                            </div>
+                            <p
+                              className={
+                                successMessage
+                                  ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
+                                  : "hidden my-2"
+                              }
                             >
-                              {bankLists?.map((option) => (
-                                <option key={option.id} value={option.name}>
-                                  {option.name}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                        </div>
-                        <div className="my-3">
-                          <label className="text-sm  text-neutral-600">
-                            Account number
-                            <input
-                              type="number"
-                              className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
-                              placeholder="Enter account number"
-                              required
-                              value={accountNumber}
-                              onChange={(e) => setAccountNumber(e.target.value)}
-                            />
-                          </label>
-                        </div>
-                      </div>
-                      <p
-                        className={
-                          successMessage
-                            ? "flex items-center text-left justify-start text-green-500 text-sm gap-2 mt-3"
-                            : "hidden my-2"
-                        }
-                      >
-                        <Image src={fi_check} alt="loader" className="" />
-                        {successMessage}
-                      </p>
-                      <p
-                        className={
-                          generalMessage
-                            ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
-                            : "hidden my-2"
-                        }
-                      >
-                        <Image src={error_outline} alt="loader" className="" />
-                        {generalMessage}
-                      </p>
+                              <Image src={fi_check} alt="loader" className="" />
+                              {successMessage}
+                            </p>
+                            <p
+                              className={
+                                generalMessage
+                                  ? "flex items-center text-left justify-start text-red-500 text-sm gap-2 mt-3"
+                                  : "hidden my-2"
+                              }
+                            >
+                              <Image
+                                src={error_outline}
+                                alt="loader"
+                                className=""
+                              />
+                              {generalMessage}
+                            </p>
 
-                      <button
-                        className={
-                          isLoading
-                            ? " disabled w-full mt-3  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
-                            : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-3"
-                        }
-                        onClick={createAccount}
-                      >
-                        {isLoading ? (
-                          <div className="flex justify-center items-center ">
-                            <Image
-                              src={fi_loader}
-                              alt="loader"
-                              className="animate-spin"
-                            />
-                            Saving...
-                          </div>
-                        ) : (
-                          "Save"
-                        )}
-                      </button>
-                    </>
-                  </form>
-                </section>
-              </Box>
-            </Modal>
+                            <button
+                              className={
+                                isLoading
+                                  ? " disabled w-full mt-3  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
+                                  : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-3"
+                              }
+                              onClick={createAccount}
+                            >
+                              {isLoading ? (
+                                <div className="flex justify-center items-center ">
+                                  <Image
+                                    src={fi_loader}
+                                    alt="loader"
+                                    className="animate-spin"
+                                  />
+                                  Saving...
+                                </div>
+                              ) : (
+                                "Save"
+                              )}
+                            </button>
+                          </>
+                        </form>
+                      </section>
+                    </Box>
+                  </Modal>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
+      {/* ----------------------------------------------- Sample -----------------------------------------------*/}
 
       {/* Filtered Paid Results */}
 
       {/* header */}
       <section>
-        {data.length > 0 ? (
+        {invoices.length > 0 ? (
           <>
             <Card className=" mx-5 px-6 py-8 mb-8 shadow={false}">
               <CardHeader floated={false} shadow={false} className="">

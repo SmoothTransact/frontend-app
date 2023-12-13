@@ -6,7 +6,6 @@ import { useSelector } from "react-redux";
 import dateFormat from "dateformat";
 
 import trans_empty_icon from "@/public/dashboard/trans_empty_icon.svg";
-import Button from "@/app/components/Button";
 import {
   Card,
   CardHeader,
@@ -16,6 +15,7 @@ import {
   IconButton,
   Tooltip,
 } from "@material-tailwind/react";
+import Link from "next/link";
 export { Card, CardHeader, Typography, CardBody, Chip, IconButton, Tooltip };
 
 const TABLE_HEAD = ["Name", "Amount", "Narration", "Date", "Status", ""];
@@ -116,6 +116,10 @@ const formatNumber = (number) => {
 const TransactionsComponent = () => {
   const [tabs, setTabs] = useState(1);
   const transactions = useSelector((state) => state.invoices.invoices);
+
+  const unpaidInvoices = transactions.filter((invoice) => {
+    return invoice.invoice.invoice.status === "unpaid";
+  });
   // const invoices = useSelector((state) => state.invoices.invoices);
 
   const Empty = (
@@ -129,13 +133,14 @@ const TransactionsComponent = () => {
           Once a client pays an invoice, transactions will show up here. Create
           an invoice to get started.
         </p>
-        <button
+        <Link
+          href="/dashboard/invoices"
           variant="primary"
           label="Create an invoice"
           className="h-[54px] py-[14px] px-8 rounded-full bg-gray-900 text-white"
         >
           Create an invoice
-        </button>
+        </Link>
       </div>
     </section>
   );
@@ -151,7 +156,7 @@ const TransactionsComponent = () => {
                 : "text-lg font-bold"
             }
           >
-            Pending (0)
+            Pending ({unpaidInvoices?.length})
           </button>
           <button
             onClick={() => setTabs(2)}
@@ -178,7 +183,7 @@ const TransactionsComponent = () => {
       <section className="px-6 py-3">
         {/* Tabs Sections */}
         {tabs === 1 &&
-          (transactions.length > 0 ? (
+          (unpaidInvoices.length > 0 ? (
             <section>
               {" "}
               <Card className=" px-6 py-8 mb-8 shadow={false}">

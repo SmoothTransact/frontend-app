@@ -3,7 +3,7 @@
 import Image from "next/image";
 import React, { useState } from "react";
 import Switch from "@mui/material/Switch";
-// import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import fi_loader from "@/public/fi_loader.svg";
 
@@ -11,8 +11,12 @@ const SettingsComponent = () => {
   const [tabs, setTabs] = useState(1);
   // const [name, setName] = useState(user.name);
   // const [email, setEmail] = useState(user.email);
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  // const user = useSelector((state) => state.user.user);
+  const user = useSelector((state) => state.user.user);
+  const token = useSelector((state) => state.user.accessToken);
+
+  console.log("user is setting, annd: ", user);
 
   return (
     <main className="bg-neutral-100 min-h-screen pb-8">
@@ -58,30 +62,33 @@ const SettingsComponent = () => {
             <form className="rounded-xl bg-white shadow-lg p-10 h-fit">
               <div className="border-b-[1px] border-neutral-200 flex pb-3 items-center gap-4">
                 <span className="rounded-full uppercase text-[40px] text-green-700 bg-green-100 p-3">
-                  SD{" "}
+                  {user.fullName
+                    .split(" ")
+                    .map((e) => e[0])
+                    .join("")}
                 </span>
                 <article>
-                  <p className="uppercase text-neutral-700 font-bold mb-4 text-sm">
-                    Business Account
+                  <p className="uppercase text-neutral-700 font-bold mb-4 text-sm ">
+                    {user?.types} Account
                   </p>
-                  <p className="text-neutral-900 font-bold text-2xl">
-                    Sammy’s Delivery Service
+                  <p className="text-neutral-900 font-bold text-2xl capitalize">
+                    {user?.fullName}
                   </p>
                   <p className="text-neutral-700 font-medium text-lg">
-                    deliverwithsam@gmail.com
+                    {user?.email}
                   </p>
                 </article>
               </div>
               <div className="mt-6">
                 <div className=" my-3">
-                  <label className="text-sm  text-neutral-600">
-                    Business name
+                  <label className="text-sm  text-neutral-600 first-letter:capitalize">
+                    {user.types} name
                     <input
                       type="text"
                       className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
                       placeholder="Enter account number"
                       required
-                      // value={accountNumber}
+                      value={user.fullName}
                       // onChange={(e) => setAccountNumber(e.target.value)}
                     />
                   </label>
@@ -94,7 +101,7 @@ const SettingsComponent = () => {
                       className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
                       placeholder="info@cntbusiness.com"
                       required
-                      // value={accountNumber}
+                      value={user.email}
                       // onChange={(e) => setAccountNumber(e.target.value)}
                     />
                   </label>

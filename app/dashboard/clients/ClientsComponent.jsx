@@ -27,6 +27,7 @@ import {
   deleteClient,
 } from "@/app/utils/redux/clientSlice";
 import { useDispatch } from "react-redux";
+// import useCreateClient from "@/app/utils/hooks/useCreateClient";
 
 function ClientsComponent({ user }) {
   const [getClients, setGetClients] = useState([]);
@@ -35,7 +36,7 @@ function ClientsComponent({ user }) {
   const [open, setOpen] = React.useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [generalMessage, setGeneralMessage] = useState(null);
-  // const [openModal, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const handleOpen = () => setOpen(!open);
   const router = useRouter();
   const dispatch = useDispatch();
@@ -48,6 +49,17 @@ function ClientsComponent({ user }) {
   const [phone, setPhone] = useState("");
 
   const token = useSelector((state) => state.user.accessToken);
+
+  // const { isLoading, generalMessage, successMessage, handleCreateClient } =
+  //   useCreateClient();
+
+  // const onSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const userData = { fullName, email, phone };
+
+  //   // Assume you have access to the token and setOpen in your component
+  //   await handleCreateClient(userData, token, setOpen);
+  // };
 
   useEffect(() => {
     if (!token) {
@@ -162,8 +174,10 @@ function ClientsComponent({ user }) {
 
           // Refresh the client list after deletion
         } catch (error) {
-          // Handle errors
-          console.error(error);
+          Swal.fire({
+            text: "Internal Server Error",
+            icon: "error",
+          });
         }
       }
     });
@@ -408,7 +422,7 @@ function ClientsComponent({ user }) {
                   }
                 >
                   <Image src={fi_check} alt="loader" className="" />
-                  {successMessage}
+                  {successMessage && <span>{successMessage}</span>}
                 </p>
                 <p
                   className={
@@ -428,6 +442,7 @@ function ClientsComponent({ user }) {
                       : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-8"
                   }
                   onClick={handleCreateClient}
+                  // onClick={onSubmit}
                 >
                   {isLoading ? (
                     <div className="flex justify-center items-center ">
