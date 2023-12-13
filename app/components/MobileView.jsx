@@ -5,11 +5,12 @@ import Link from "next/link";
 // import logo from "../assets/evaactive_logo.png";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { usePathname } from "next/navigation";
-import { useLogoutMutation } from "@/app/utils/rtk/apiSlice";
-import { useDispatch } from "react-redux";
+// import { useLogoutMutation } from "@/app/utils/rtk/apiSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { dispatchLogout } from "@/app/utils/redux/userSlice";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 const MobileView = ({ navbar, setNavbar }) => {
   const [isPending, setIsPending] = useState(false);
@@ -17,24 +18,42 @@ const MobileView = ({ navbar, setNavbar }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [active, setActive] = useState(null);
+  const token = useSelector((state) => state.user.accessToken);
 
-  const [logout] = useLogoutMutation();
+  // const [logout] = useLogoutMutation();
 
   const handleLogout = async () => {
     setIsPending(true);
     try {
-      await logout();
+      await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}auth/signout`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       dispatch(dispatchLogout());
       localStorage.clear();
       router.push("/auth/login");
-      redirect("/auth/login");
-    } catch (er) {
-      console.error(`${er.message}`);
       setIsPending(false);
-    } finally {
-      setIsPending(false);
+    } catch (error) {
+      console.error(`${error.message}`);
     }
   };
+
+  // const handleLogout = async () => {
+  //   setIsPending(true);
+  //   try {
+  //     await logout();
+  //     dispatch(dispatchLogout());
+  //     localStorage.clear();
+  //     router.push("/auth/login");
+  //     redirect("/auth/login");
+  //   } catch (er) {
+  //     console.error(`${er.message}`);
+  //     setIsPending(false);
+  //   } finally {
+  //     setIsPending(false);
+  //   }
+  // };
   return (
     <div className="fixed top-0 left-0 z-50 h-[100vh] w-full lg:hidden block">
       <div className="relative">

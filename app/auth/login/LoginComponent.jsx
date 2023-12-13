@@ -12,7 +12,7 @@ import { useLoginMutation } from "@/app/utils/rtk/apiSlice";
 import { useDispatch } from "react-redux";
 import {
   dispatchIsLogged,
-  dispatchUser,
+  // dispatchUser,
   dispatchUserRefreshToken,
   dispatchUserToken,
 } from "@/app/utils/redux/userSlice";
@@ -80,7 +80,7 @@ export default function LoginComponent() {
       );
       // console.log("User data", result.data);
       dispatch(dispatchIsLogged());
-      dispatch(dispatchUser(result.data.data.wallet));
+      // dispatch(dispatchUser(result.data.data.wallet));
       dispatch(dispatchUserToken(result.data.data.accessToken));
       dispatch(dispatchUserRefreshToken(result.data.data.refreshToken));
 

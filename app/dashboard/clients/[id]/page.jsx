@@ -6,6 +6,8 @@ import Image from "next/image";
 import fi_loader from "@/public/fi_loader.svg";
 import fi_check from "@/public/fi_check.svg";
 import error_outline from "@/public/error_outline.svg";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function ClientDetails() {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,10 +21,45 @@ export default function ClientDetails() {
   const clientDetails = useSelector((state) =>
     state.clients.clients.find((client) => client.id === clientId)
   );
+  const token = useSelector((state) => state.user.accessToken);
 
   const [fullName, setFullName] = useState(clientDetails?.fullName || "");
   const [email, setEmail] = useState(clientDetails?.email || "");
   const [phone, setPhone] = useState(clientDetails?.phone || "");
+
+  const router = useRouter();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const data = {
+      fullName,
+      email,
+      phone,
+    };
+
+    try {
+      const response = await axios.patch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}clients/${clientId}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        setSuccessMessage("Client info updated successfully");
+        setGeneralMessage(null);
+        setIsLoading(false);
+      }
+      router.push("/dashboard/clients");
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <main className="px-6 py-6 bg-neutral-50 min-h-screen flex justify-center">
@@ -102,7 +139,7 @@ export default function ClientDetails() {
                   ? " disabled w-full mt-3  bg-gray-200 text-gray-900 rounded-full px-8 py-[14px] lg:text-lg text-base"
                   : "bg-neutral-900 text-neutral-50 py-[14px] px-8 rounded-full h-[54px] w-full mt-3"
               }
-              //   onClick={handleCreateClient}
+              onClick={handleSubmit}
             >
               {isLoading ? (
                 <div className="flex justify-center items-center ">

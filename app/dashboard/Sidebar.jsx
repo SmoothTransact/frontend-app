@@ -2,16 +2,16 @@
 
 /* eslint-disable no-unused-vars */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import black_logo from "@/public/black_logo.svg";
 import { usePathname } from "next/navigation";
-import { useLogoutMutation } from "@/app/utils/rtk/apiSlice";
-import { useDispatch } from "react-redux";
+// import { useLogoutMutation } from "@/app/utils/rtk/apiSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { dispatchLogout } from "@/app/utils/redux/userSlice";
 import { useRouter } from "next/navigation";
-import { redirect } from "next/navigation";
+import axios from "axios";
 
 const Sidebar = () => {
   const [isPending, setIsPending] = useState(false);
@@ -19,23 +19,59 @@ const Sidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [logout] = useLogoutMutation();
+  const token = useSelector((state) => state.user.accessToken);
+
+  // const [logout] = useLogoutMutation();
+
+  useEffect(() => {
+    if (!token) {
+      router.push("/auth/login");
+      dispatch(dispatchLogout());
+      localStorage.clear();
+    } else {
+      router.push("/dashboard");
+    }
+  }, [token, router, dispatch]);
 
   const handleLogout = async () => {
     setIsPending(true);
+
     try {
-      await logout();
+      await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}auth/signout`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       dispatch(dispatchLogout());
       localStorage.clear();
       router.push("/auth/login");
-      redirect("/auth/login");
-    } catch (er) {
-      console.error(`${er.message}`);
       setIsPending(false);
-    } finally {
-      setIsPending(false);
+    } catch (error) {
+      console.log(`error is: ${error.message}`);
+      if (error === "Request failed with status code 401") {
+        dispatch(dispatchLogout());
+        localStorage.clear();
+        router.push("/auth/login");
+        setIsPending(false);
+      }
     }
   };
+
+  // const handleLogout = async () => {
+  //   setIsPending(true);
+  //   try {
+  //     await logout();
+  //     dispatch(dispatchLogout());
+  //     localStorage.clear();
+  //     router.push("/auth/login");
+  //     redirect("/auth/login");
+  //   } catch (er) {
+  //     console.error(`${er.message}`);
+  //     setIsPending(false);
+  //   } finally {
+  //     setIsPending(false);
+  //   }
+  // };
   return (
     <aside className="  bg-neutral-50  text-gray-900 h-auto md:h-auto lg:h-screen xl:h-screen lg:mb-0 mb-6 px-4 py-12 sticky left-0 top-0 border-r-[1px] border-neutral-100">
       <section className="lg:block hidden">
