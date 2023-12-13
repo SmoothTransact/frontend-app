@@ -61,7 +61,7 @@ const SettingsComponent = () => {
             <form className="rounded-xl bg-white shadow-lg p-10 h-fit">
               <div className="border-b-[1px] border-neutral-200 flex pb-3 items-center gap-4">
                 <span className="rounded-full uppercase text-[40px] text-green-700 bg-green-100 p-3">
-                  {user.fullName
+                  {user?.fullName
                     .split(" ")
                     .map((e) => e[0])
                     .join("")}
