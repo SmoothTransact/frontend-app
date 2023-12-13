@@ -8,15 +8,14 @@ import { useSelector } from "react-redux";
 import fi_loader from "@/public/fi_loader.svg";
 
 const SettingsComponent = () => {
+  const user = useSelector((state) => state.user.user);
+
   const [tabs, setTabs] = useState(1);
-  // const [name, setName] = useState(user.name);
-  // const [email, setEmail] = useState(user.email);
+  const [fullName, setFullName] = useState(user?.fullName);
+  const [email, setEmail] = useState(user?.email);
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const user = useSelector((state) => state.user.user);
-  const token = useSelector((state) => state.user.accessToken);
-
-  console.log("user is setting, annd: ", user);
+  // const token = useSelector((state) => state.user.accessToken);
 
   return (
     <main className="bg-neutral-100 min-h-screen pb-8">
@@ -88,8 +87,8 @@ const SettingsComponent = () => {
                       className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
                       placeholder="Enter account number"
                       required
-                      value={user.fullName}
-                      // onChange={(e) => setAccountNumber(e.target.value)}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
                     />
                   </label>
                 </div>
@@ -101,8 +100,8 @@ const SettingsComponent = () => {
                       className="w-full py-3 px-6 border-[1px] border-neutral-300 rounded-lg focus:outline-blue-500"
                       placeholder="info@cntbusiness.com"
                       required
-                      value={user.email}
-                      // onChange={(e) => setAccountNumber(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                   </label>
                 </div>
