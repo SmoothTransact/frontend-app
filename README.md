@@ -1,6 +1,6 @@
 # Smooth Transact - Small Business Payments Management App
 
-## Summary
+## Summaryyyy
 
 Smooth Transact is an application designed with Next.js to simplify payment processes for small businesses. This application empowers business owners to efficiently manage their payments, create client profiles, track transactions, and receive real-time alerts for unpaid invoices.
 
